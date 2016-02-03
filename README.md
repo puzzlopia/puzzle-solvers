@@ -64,3 +64,7 @@ Among the developments I would like to add:
 - Refactor: I want to make cleaner interfaces, difficult because algorithms tend to perform better as more information is accessible, and this means larger interfaces and poor coupling.
 - Improve current implementation: if you try to solve puzzlopia's [Ninja II](http://www.puzzlopia.com/puzzles/ninja-ii/play) you will see that it takes more than seconds.
 - Prove (or at least know the limitations) that the algorithm always finds the optimal solution with 'move metric'.
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/puzzlopia/puzzle-solvers/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
