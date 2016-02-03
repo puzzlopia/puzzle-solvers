@@ -1,6 +1,6 @@
 package games
 
-//import "fmt"
+import "github.com/edgarweto/puzzlopia/puzzle-solvers/definitions"
 import "github.com/edgarweto/puzzlopia/puzzle-solvers/grids"
 
 // Sliding Block Game type
@@ -33,14 +33,14 @@ func (g *SBGame) Define(m *grids.Matrix2d) (err error) {
 }
 
 // Implements GameDef interface
-func (g *SBGame) SetState(s GameState) (err error) {
+func (g *SBGame) SetState(s defs.GameState) (err error) {
 	b, ok := s.(*SBPState)
 	if ok {
 		g.state_.CopyGrid(*b)
 		g.state_.UpdatePiecePositions(g.piecesById)
 		g.state_.SetPrevState(s.PrevState(), s.PrevMov())
 	} else {
-		panic("[SBGame::SetState] GameState not of type SBPState!")
+		panic("[SBGame::SetState] defs.GameState not of type SBPState!")
 	}
 
 	return nil
@@ -81,7 +81,7 @@ func (g *SBGame) Build() (err error) {
 }
 
 // Playable interface
-func (g *SBGame) Move(mov GameMov) (err error) {
+func (g *SBGame) Move(mov defs.Command) (err error) {
 
 	piece := g.piecesById[mov.PieceId()]
 
@@ -98,7 +98,7 @@ func (g *SBGame) Move(mov GameMov) (err error) {
 }
 
 // Reverts the movement
-func (g *SBGame) UndoMove(mov GameMov) (err error) {
+func (g *SBGame) UndoMove(mov defs.Command) (err error) {
 
 	piece := g.piecesById[mov.PieceId()]
 
@@ -107,7 +107,7 @@ func (g *SBGame) UndoMove(mov GameMov) (err error) {
 
 	// 2. Move the piece, updating its position
 	m := mov.Inverted()
-	mInv := m.(GameMov)
+	mInv := m.(defs.Command)
 	piece.Move(mInv)
 
 	// 3. Return piece to the state's grid
@@ -117,11 +117,11 @@ func (g *SBGame) UndoMove(mov GameMov) (err error) {
 }
 
 // Return a copy of the state
-func (g *SBGame) State() (s GameState) {
+func (g *SBGame) State() (s defs.GameState) {
 	return g.state_.Clone()
 }
 
 // Return a list of valid movements that can be done from this state
-func (g *SBGame) ValidMovementsBFS() []GameMov {
-	return g.state_.ValidMovementsBFS(g.pieces)
+func (g *SBGame) ValidMovementsBFS(pieceTrajectory []defs.Command) []defs.Command {
+	return g.state_.ValidMovementsBFS(g.pieces, pieceTrajectory)
 }

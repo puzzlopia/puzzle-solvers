@@ -5,7 +5,7 @@ A Go puzzle solver used for solving and creating brain teasers.
 The intention is of course to be able to solve Sliding Blocks Puzzles, or SBPs.
 But it is also to solve other puzzles, be it Sudokus, Sparse Sliding Blocks Puzzles (with lots of free space) or any kind.
 
-I want Puzzlopia to have any type of puzzle, so I hope to add solvers for each type it deserves. And having a puzzle solver is a must if you also want to design new puzzles.
+I want [puzzlopia](http://www.puzzlopia.com) to have any type of puzzle, so I hope to add solvers for each type it deserves. And having a puzzle solver is a must if you also want to design new puzzles.
 
 Finally, a public repository can be viewed by other people, so they can just add more algorithms, better implementations, improve the solvers, fix bugs, etc.
 
@@ -27,7 +27,7 @@ It is easy to implement an algorithm that finds solutions or optimal solutions u
 ## Using the solver
 You only need to edit (or duplicate) the 'main.go' file. 
 
-1. *Define the SBP puzzle*:
+1. **Define the SBP puzzle**:
   You have to specify the initial state and the goal state. The structure is pretty straightforward: it consists of a matrix of integers, 0 meaning free space and any positive value, a piece.
   Each piece must be marked with a different integer.
   To accelerate the algorithm, you can tell the algorithm that there are similar, interchangeable pieces: for example, the small 1x1 squares of
@@ -46,13 +46,13 @@ You only need to edit (or duplicate) the 'main.go' file.
   By default, all pieces are different.
 
 
-2. *Adjust solver parameters*
+2. **Adjust solver parameters**
   Basically, the limits:
   - 'MAX_DEPTH': max depth you enable the algorithm to reach. It should be equal or greater than the expected solution length in 'steps metric'.
   - 'MAX_STATES': you can limit the number of states explored, or you can leave it 0 and only limit max depth.
 
 
-3. *Compile and run*. If the solver finds a solution, it will print it to the console. For Pennant example:
+3. **Compile and run**. If the solver finds a solution, it will print it to the console. For Pennant example:
 
   ```js
   Found! Path len:  59

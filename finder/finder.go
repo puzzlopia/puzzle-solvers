@@ -1,6 +1,8 @@
 package finder
 
-import "github.com/edgarweto/puzzlopia/puzzle-solvers/games"
+import "github.com/edgarweto/puzzlopia/puzzle-solvers/definitions"
+
+//import "github.com/edgarweto/puzzlopia/puzzle-solvers/games"
 
 // Basic finder interface
 type Finder interface {
@@ -9,7 +11,7 @@ type Finder interface {
 	SilentMode(bool)
 
 	// Searches for the farthest states from current state
-	SolvePuzzle(g games.Playable, extremals games.GameStates)
+	SolvePuzzle(g defs.Playable, extremals defs.GameStates)
 }
 
 // Finder limits: depth and number of different states

@@ -5,6 +5,8 @@ import "time"
 import "github.com/fatih/color"
 
 import "github.com/edgarweto/puzzlopia/puzzle-solvers/utils"
+import "github.com/edgarweto/puzzlopia/puzzle-solvers/definitions"
+
 import "github.com/edgarweto/puzzlopia/puzzle-solvers/games"
 
 import "github.com/edgarweto/puzzlopia/puzzle-solvers/grids" //TO REMOVE DEPENDENCY
@@ -18,12 +20,12 @@ type SbpBfsFinder struct {
 	hardOptimals_ bool
 
 	// Game settings
-	game_      games.Playable
-	initState_ games.GameState
+	game_      defs.Playable
+	initState_ defs.GameState
 
 	// If we are searching for a concrete state
 	search_     *games.SBPState
-	foundState_ *games.GameState
+	foundState_ *defs.GameState
 
 	// Stats
 	countStates_  utils.ScalarStatistic
@@ -31,9 +33,9 @@ type SbpBfsFinder struct {
 	frontierSize_ utils.RangeStatistic
 
 	// Algorithm state
-	visitedStates_ map[int][]games.GameState
+	visitedStates_ map[int][]defs.GameState
 	frontier_      utils.Queue
-	nextFrontier_  []games.GameState
+	nextFrontier_  []defs.GameState
 	endStatus_     string
 	duration_      time.Duration
 
@@ -108,16 +110,17 @@ func (f *SbpBfsFinder) Resume() {
 			search.Println("Not found.")
 		}
 	}
+	fmt.Println("\n\n")
 }
 
 /**
  * @summary Makes a depth-search and returns the most 'distant' states.
  *
- * @param {games.Playable} g The sequential game
+ * @param {defs.Playable} g The sequential game
  * @param {int} maxSteps Max depth of the search
  * @param {int} maxExtremals Max number of extremal states returned
  */
-func (f *SbpBfsFinder) SolvePuzzle(g games.Playable, extremals *games.GameStates) {
+func (f *SbpBfsFinder) SolvePuzzle(g defs.Playable, extremals *defs.GameStates) {
 
 	if !f.silent_ {
 		fmt.Println("Puzzle Finder v.1.0")
@@ -133,7 +136,7 @@ func (f *SbpBfsFinder) SolvePuzzle(g games.Playable, extremals *games.GameStates
 	f.frontierSize_.Set("Frontier size")
 
 	f.game_ = g
-	f.visitedStates_ = make(map[int][]games.GameState)
+	f.visitedStates_ = make(map[int][]defs.GameState)
 	f.initState_ = f.game_.State()
 
 	h := f.initState_.ToHash()
@@ -176,14 +179,14 @@ func (f *SbpBfsFinder) exploreTree() {
 			break
 		}
 
-		var reversePath []games.GameMov
+		var reversePath []defs.Command
 		curState.BuildPathReversed(&reversePath)
 
-		// var pieceTrajectory grids.GridPath2
-		// pieceTrajectory.BuildFromReversePath(reversePath)
+		var pieceTrajectory grids.GridPath2
+		pieceTrajectory.BuildFromReversePath(reversePath)
 
 		f.game_.SetState(curState)
-		validMovs := f.game_.ValidMovementsBFS()
+		validMovs := f.game_.ValidMovementsBFS(pieceTrajectory.Path())
 
 		f.nodesDegree_.Add(len(validMovs))
 
@@ -212,7 +215,7 @@ func (f *SbpBfsFinder) exploreTree() {
 
 // Checks whether the state is new or have been previously processed.
 // If it isn't new, then compares the path length and decides if it is worth re-visiting it.
-func (f *SbpBfsFinder) processState(s games.GameState, reversePath []games.GameMov, mov games.GameMov) {
+func (f *SbpBfsFinder) processState(s defs.GameState, reversePath []defs.Command, mov defs.Command) {
 
 	h := s.ToHash()
 	if f.debug_ {
@@ -319,7 +322,7 @@ func (f *SbpBfsFinder) processState(s games.GameState, reversePath []games.GameM
 }
 
 // Push back to the priority queue that state.
-func (f *SbpBfsFinder) addToFrontier(s games.GameState) {
+func (f *SbpBfsFinder) addToFrontier(s defs.GameState) {
 	if f.debug_ {
 		f.outDbg2_.Printf("\n	  Add to frontier: state [%d], from move %v", s.Uid(), s.PrevMov())
 	}
@@ -329,7 +332,7 @@ func (f *SbpBfsFinder) addToFrontier(s games.GameState) {
 }
 
 // Pop from start of queue (highest priority)
-func (f *SbpBfsFinder) popFrontier() games.GameState {
+func (f *SbpBfsFinder) popFrontier() defs.GameState {
 
 	x := f.frontier_.PopFront()
 	if x != nil {
@@ -349,7 +352,7 @@ func (f *SbpBfsFinder) popFrontier() games.GameState {
 
 // Called every time we found the objective state (solution of puzzle). We check whether the new
 // solution is better or not.
-func (f *SbpBfsFinder) updateObjective(s games.GameState) {
+func (f *SbpBfsFinder) updateObjective(s defs.GameState) {
 
 	s.MarkAsObjective()
 
@@ -368,8 +371,8 @@ func (f *SbpBfsFinder) updateObjective(s games.GameState) {
 	}
 }
 
-func (f *SbpBfsFinder) reversePathOn(path []games.GameMov, mov games.GameMov) []games.GameMov {
-	result := make([]games.GameMov, len(path)+1)
+func (f *SbpBfsFinder) reversePathOn(path []defs.Command, mov defs.Command) []defs.Command {
+	result := make([]defs.Command, len(path)+1)
 
 	l := len(path) - 1
 	for i := l; i >= 0; i-- {

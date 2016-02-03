@@ -1,6 +1,7 @@
 package games
 
 import "fmt"
+import "github.com/edgarweto/puzzlopia/puzzle-solvers/definitions"
 import "github.com/edgarweto/puzzlopia/puzzle-solvers/grids"
 
 // A static, global or common for all states, struct that maps each piece id to its value used for comparisons.
@@ -33,7 +34,7 @@ var staticSBPStateCount_ int = 0
 type SBPState struct {
 	uid_              int
 	grid              grids.Matrix2d
-	movChain_         []GameMov
+	movChain_         []defs.Command
 	movChainCount_    int
 	pieceToValue_     *PieceToValue
 	equivToObjective_ bool
@@ -42,16 +43,16 @@ type SBPState struct {
 	waiting_       bool
 	depth_         int
 	equivalencies_ []struct {
-		state_ GameState
-		path_  []GameMov
-		mov_   GameMov
+		state_ defs.GameState
+		path_  []defs.Command
+		mov_   defs.Command
 	}
 
 	// Graph structure
-	prevState_  GameState
-	prevMov_    GameMov
-	nextStates_ []GameState
-	nextMovs_   []GameMov
+	prevState_  defs.GameState
+	prevMov_    defs.Command
+	nextStates_ []defs.GameState
+	nextMovs_   []defs.Command
 }
 
 // Initialize the game with the starting state matrix
@@ -97,14 +98,14 @@ func (g *SBPState) TinyPrint() {
 }
 
 /**
- * Implement GameState interface
+ * Implement defs.GameState interface
  */
 func (g *SBPState) Uid() int {
 	return g.uid_
 }
 
-// Create a new GameState, cloned from current
-func (g *SBPState) Clone() GameState {
+// Create a new defs.GameState, cloned from current
+func (g *SBPState) Clone() defs.GameState {
 	var c SBPState
 
 	staticSBPStateCount_++
@@ -115,7 +116,7 @@ func (g *SBPState) Clone() GameState {
 }
 
 //
-func (g *SBPState) Equal(c GameState) bool {
+func (g *SBPState) Equal(c defs.GameState) bool {
 	if g.pieceToValue_ == nil {
 		g.pieceToValue_ = getPieceToValueMap()
 	}
@@ -139,7 +140,7 @@ func (g *SBPState) Equal(c GameState) bool {
 	return true
 }
 
-func (g *SBPState) EqualSub(c GameState) bool {
+func (g *SBPState) EqualSub(c defs.GameState) bool {
 	if g.pieceToValue_ == nil {
 		g.pieceToValue_ = getPieceToValueMap()
 	}
@@ -193,12 +194,12 @@ func (g *SBPState) ToHash() int {
 	return hash
 }
 
-func (s *SBPState) PrevState() GameState {
+func (s *SBPState) PrevState() defs.GameState {
 	return s.prevState_
 }
 
 // Sets prev status and the mov that brought to this state
-func (s *SBPState) SetPrevState(prev GameState, mov GameMov) {
+func (s *SBPState) SetPrevState(prev defs.GameState, mov defs.Command) {
 	var ss *SBPState = nil
 
 	if prev == nil {
@@ -218,18 +219,18 @@ func (s *SBPState) SetPrevState(prev GameState, mov GameMov) {
 
 }
 
-func (s *SBPState) PrevMov() GameMov {
+func (s *SBPState) PrevMov() defs.Command {
 	return s.prevMov_
 }
 
 // Adds a state as a next state, and the corresponding mov
-func (s *SBPState) AddNextState(u GameState, mov GameMov) {
+func (s *SBPState) AddNextState(u defs.GameState, mov defs.Command) {
 	s.nextStates_ = append(s.nextStates_, u)
 	s.nextMovs_ = append(s.nextMovs_, mov)
 }
 
 //Returns true if, among next movements, there is a movement of the same piece as the argument's mov.
-func (s *SBPState) SamePieceMovedNext(mov GameMov) bool {
+func (s *SBPState) SamePieceMovedNext(mov defs.Command) bool {
 	pieceId := mov.PieceId()
 	for _, m := range s.nextMovs_ {
 		if m.PieceId() == pieceId && !m.IsInverse(mov) {
@@ -239,7 +240,7 @@ func (s *SBPState) SamePieceMovedNext(mov GameMov) bool {
 	return false
 }
 
-func (s *SBPState) SetMovChain(movs []GameMov) {
+func (s *SBPState) SetMovChain(movs []defs.Command) {
 	s.movChain_ = movs
 	s.updateChainLen()
 }
@@ -271,18 +272,18 @@ func (s *SBPState) RealPathLen() int {
 	return len(s.movChain_)
 }
 
-func (s *SBPState) CopyMovChainFrom(gs GameState) {
+func (s *SBPState) CopyMovChainFrom(gs defs.GameState) {
 	from, ok := gs.(*SBPState)
 	if ok {
-		s.movChain_ = make([]GameMov, len(from.movChain_))
+		s.movChain_ = make([]defs.Command, len(from.movChain_))
 		copy(s.movChain_, from.movChain_)
 		s.updateChainLen()
 	}
 }
 
 // Sets a new path to the state, adding a final step, and updates its real length
-func (s *SBPState) copyMovChainAndAdd(path []GameMov, mov GameMov) {
-	s.movChain_ = make([]GameMov, len(path))
+func (s *SBPState) CopyMovChainAndAdd(path []defs.Command, mov defs.Command) {
+	s.movChain_ = make([]defs.Command, len(path))
 	copy(s.movChain_, path)
 	s.movChain_ = append(s.movChain_, mov)
 	s.updateChainLen()
@@ -321,11 +322,11 @@ func (s *SBPState) updatePieceToValue(pieces []*grids.GridPiece2, notAutoalikePi
 	}
 }
 
-// func (g *SBPState) ValidMovements(pieces []*grids.GridPiece2, seq *[]GameMov, lastMov GameMov, curPieceTrajectory []GameMov) {
+// func (g *SBPState) ValidMovements(pieces []*grids.GridPiece2, seq *[]defs.Command, lastMov defs.Command, curPieceTrajectory []defs.Command) {
 
 // 	// Prioritize consecutive movements with the same piece
-// 	var samePieceMovs []GameMov
-// 	var otherMovs []GameMov
+// 	var samePieceMovs []defs.Command
+// 	var otherMovs []defs.Command
 // 	pieceId := 0
 // 	if lastMov != nil {
 // 		pieceId = lastMov.PieceId()
@@ -385,7 +386,7 @@ func (s *SBPState) PlacePiece(p *grids.GridPiece2) {
 	s.grid.PlacePiece(p)
 }
 
-func (s *SBPState) BuildPathReversed(path *[]GameMov) {
+func (s *SBPState) BuildPathReversed(path *[]defs.Command) {
 
 	if s.prevState_ != nil {
 		*path = append(*path, s.prevMov_)
@@ -396,12 +397,12 @@ func (s *SBPState) BuildPathReversed(path *[]GameMov) {
 /**
  * ====================== BFS ===============================
  */
-func (s *SBPState) ValidMovementsBFS(pieces []*grids.GridPiece2) []GameMov {
-	var seq []GameMov
+func (s *SBPState) ValidMovementsBFS(pieces []*grids.GridPiece2, pieceTrajectory []defs.Command) []defs.Command {
+	var seq []defs.Command
 
 	// Prioritize consecutive movements with the same piece
-	var samePieceMovs []GameMov
-	var otherMovs []GameMov
+	var samePieceMovs []defs.Command
+	var otherMovs []defs.Command
 	pieceId := 0
 	if s.prevMov_ != nil {
 		pieceId = s.prevMov_.PieceId()
@@ -427,9 +428,9 @@ func (s *SBPState) ValidMovementsBFS(pieces []*grids.GridPiece2) []GameMov {
 				if !m.IsInverse(s.prevMov_) {
 
 					// We need to avoid, when moving one piece consecutively, trajectories that touch themselves!
-					//if piecePath == nil || !grids.TrajectoryTouchesWithMov(piecePath, m) {
-					samePieceMovs = append(samePieceMovs, m)
-					//}
+					if len(pieceTrajectory) == 0 || !grids.TrajectoryTouchesWithMov(pieceTrajectory, m) {
+						samePieceMovs = append(samePieceMovs, m)
+					}
 				}
 			}
 
@@ -483,21 +484,21 @@ func (s *SBPState) Waiting() bool {
 	return s.waiting_
 }
 
-func (s *SBPState) AddEquivPath(a GameState, path []GameMov, m GameMov) {
+func (s *SBPState) AddEquivPath(a defs.GameState, path []defs.Command, m defs.Command) {
 
-	p := make([]GameMov, len(path))
+	p := make([]defs.Command, len(path))
 	copy(p, path)
 	s.equivalencies_ = append(s.equivalencies_,
 		struct {
-			state_ GameState
-			path_  []GameMov
-			mov_   GameMov
+			state_ defs.GameState
+			path_  []defs.Command
+			mov_   defs.Command
 		}{a, p, m})
 }
 
 // Returns true if current movement is on the same piece as an equivalent position of this state.
 // It indicates that the 'other' path is shorter (the length is checked when adding the equivalency)
-func (s *SBPState) ApplyEquivalencyContinuity(a GameState, mov GameMov) bool {
+func (s *SBPState) ApplyEquivalencyContinuity(a defs.GameState, mov defs.Command) bool {
 
 	for _, x := range s.equivalencies_ {
 		m := x.mov_
@@ -507,7 +508,7 @@ func (s *SBPState) ApplyEquivalencyContinuity(a GameState, mov GameMov) bool {
 			s.SetMovChain(x.path_)
 
 			//a state has that path plus mov.
-			a.copyMovChainAndAdd(x.path_, mov)
+			a.CopyMovChainAndAdd(x.path_, mov)
 
 			// REPARENT:
 			a.SetPrevState(x.state_, x.mov_)
@@ -518,6 +519,6 @@ func (s *SBPState) ApplyEquivalencyContinuity(a GameState, mov GameMov) bool {
 	return false
 }
 
-func (s *SBPState) PathChain() []GameMov {
+func (s *SBPState) PathChain() []defs.Command {
 	return s.movChain_
 }

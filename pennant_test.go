@@ -1,5 +1,6 @@
 package main
 
+import "github.com/edgarweto/puzzlopia/puzzle-solvers/definitions"
 import "github.com/edgarweto/puzzlopia/puzzle-solvers/finder"
 import "github.com/edgarweto/puzzlopia/puzzle-solvers/games"
 import "github.com/edgarweto/puzzlopia/puzzle-solvers/grids"
@@ -62,7 +63,7 @@ func TestEquivalence(t *testing.T) {
 		[]int{2, 2, 0, 0},
 	})
 
-	extremals := games.GameStates{}
+	extremals := defs.GameStates{}
 
 	sbpFinder.SolvePuzzle(myPuzzle, &extremals)
 
