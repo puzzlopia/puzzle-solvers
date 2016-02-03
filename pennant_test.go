@@ -1,8 +1,8 @@
 package main
 
-import "github.com/edgarweto/puzzlopia/solvers/finder"
-import "github.com/edgarweto/puzzlopia/solvers/games"
-import "github.com/edgarweto/puzzlopia/solvers/grids"
+import "github.com/edgarweto/puzzlopia/puzzle-solvers/finder"
+import "github.com/edgarweto/puzzlopia/puzzle-solvers/games"
+import "github.com/edgarweto/puzzlopia/puzzle-solvers/grids"
 
 import "testing"
 

@@ -1,31 +1,33 @@
 # puzzle-solvers
 A Go puzzle solver used for solving and creating brain teasers. 
 
-# Why another sliding blocks puzzle solver?
+## Why another sliding blocks puzzle solver?
 The intention is of course to be able to solve Sliding Blocks Puzzles, or SBPs.
-But it is also to solve other puzzles, be it Sudokus, Sparse Sliding Blocks Puzzles (with lot of free space) or any kind.
+But it is also to solve other puzzles, be it Sudokus, Sparse Sliding Blocks Puzzles (with lots of free space) or any kind.
 
-I want Puzzlopia to have any type of puzzle, so I hope to add solvers for each type it deserves. Also, having a puzzle solver is a must if you want also to design new puzzles.
+I want Puzzlopia to have any type of puzzle, so I hope to add solvers for each type it deserves. And having a puzzle solver is a must if you also want to design new puzzles.
 
-
-# About this first implementation
-I've selected Go language because it is similar to C++, equally powerful, and it addresses directly some interesting methodologies, as go-routines and parallelism (though I'm not using them, yet. This is the first project I make with Go.)
+Finally, a public repository can be viewed by other people, so they can just add more algorithms, better implementations, improve the solvers, fix bugs, etc.
 
 
-# Sliding Block Puzzle Solver
+## About this first implementation
+I've selected Go language because it is similar to C++, equally powerful, and it addresses directly some interesting methodologies, as go-routines and parallelism (though I'm not using them, yet. This is my first Go project.)
+
+
+## Sliding Block Puzzle Solver
 The first solver implemented only works for SBPs. 
 There is no restriction on the shape of pieces (yes, this is important for future puzzles).
 
-As you can see if you run the code, the algorithm solves [Pennant](http://www.puzzlopia.com/puzzles/pennant/play) optimally (less than a second on my laptop). I think it still requires adjustments in order to solve optimally any SBPs using the 'move metric'. Remember:
+As you can see if you run the code (`pennant_test'), the algorithm solves [Pennant](http://www.puzzlopia.com/puzzles/pennant/play) optimally (59 movs, less than a second on my laptop). I think it still requires adjustments in order to solve optimally any SBPs using the 'move metric'. Remember:
 - 'Move metric': if you move around using only one piece (or block), it counts as one movement.
 - 'Step metric': any movement of one position counts as one movement.
 
-It is easy to implement an algorithm that finds solutions or optimal solutions using 'step metric'. [BFS](https://en.wikipedia.org/wiki/Depth-first_search) does pretty well. But everything changes when you use 'move metric', which seems to be the standard between SBPs experts. This is what current algorithm tries to do
+It is easy to implement an algorithm that finds solutions or optimal solutions using 'step metric'. [BFS](https://en.wikipedia.org/wiki/Depth-first_search) does pretty well. But everything changes when you use 'move metric', which seems to be the standard between SBPs experts. This is what current algorithm tries to do.
 
-# Using the solver
+## Using the solver
 You only need to edit (or duplicate) the 'main.go' file. 
 
-1. Define the SBP puzzle:
+1. *Define the SBP puzzle*:
   You have to specify the initial state and the goal state. The structure is pretty straightforward: it consists of a matrix of integers, 0 meaning free space and any positive value, a piece.
   Each piece must be marked with a different integer.
   To accelerate the algorithm, you can tell the algorithm that there are similar, interchangeable pieces: for example, the small 1x1 squares of
@@ -41,15 +43,16 @@ You only need to edit (or duplicate) the 'main.go' file.
   ```js
   myPuzzle.SetNotAlikePiece(5)
   ```
+  By default, all pieces are different.
 
 
-2. Adjust solver parameters
+2. *Adjust solver parameters*
   Basically, the limits:
-  - 'MAX_DEPTH': max depth you enable the algorithm to reach. It should be equal or greater than the expected solution length.
+  - 'MAX_DEPTH': max depth you enable the algorithm to reach. It should be equal or greater than the expected solution length in 'steps metric'.
   - 'MAX_STATES': you can limit the number of states explored, or you can leave it 0 and only limit max depth.
 
 
-3. Compile and run. If the solver finds a solution, it will print on the console. For Pennant example:
+3. *Compile and run*. If the solver finds a solution, it will print it to the console. For Pennant example:
 
   ```js
   Found! Path len:  59
@@ -59,8 +62,9 @@ You only need to edit (or duplicate) the 'main.go' file.
   ```
 
 
-# Next changes
+## Next changes
 Among the developments I would like to add:
-- Refactor: I want to make cleaner interfaces, difficult because algorithms tend to perform better as more information is accessible, and this means larger interfaces and poor coupling.
+- Refactor: I want to make cleaner interfaces, difficult because algorithms tend to perform better as more information is accessible, and this means larger interfaces and increased coupling.
 - Improve current implementation: if you try to solve puzzlopia's [Ninja II](http://www.puzzlopia.com/puzzles/ninja-ii/play) you will see that it takes more than seconds.
 - Prove (or at least know the limitations) that the algorithm always finds the optimal solution with 'move metric'.
+- Add a user interface, probably a web interface.

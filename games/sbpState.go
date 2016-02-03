@@ -1,7 +1,7 @@
 package games
 
 import "fmt"
-import "github.com/edgarweto/puzzlopia/solvers/grids"
+import "github.com/edgarweto/puzzlopia/puzzle-solvers/grids"
 
 // A static, global or common for all states, struct that maps each piece id to its value used for comparisons.
 type PieceToValue struct {
@@ -15,6 +15,7 @@ func (ptv *PieceToValue) Set(id int, value int) {
 	ptv.idToValue_[id] = value
 }
 
+// Shared among all states, static map.
 var ptv *PieceToValue = nil
 
 func getPieceToValueMap() *PieceToValue {
@@ -46,7 +47,7 @@ type SBPState struct {
 		mov_   GameMov
 	}
 
-	// Graph structure to be able to perform a Dijkstra-like algorithm
+	// Graph structure
 	prevState_  GameState
 	prevMov_    GameMov
 	nextStates_ []GameState
@@ -69,19 +70,19 @@ func (g *SBPState) UpdatePiecePositions(piecesById map[int]*grids.GridPiece2) {
 	g.grid.UpdatePiecePositions(piecesById)
 }
 
-// Initialize the game with the starting state matrix
-func (g *SBPState) Print() {
-	fmt.Println("\n----STATE----")
-	fmt.Printf("PATH:")
+// // Initialize the game with the starting state matrix
+// func (g *SBPState) Print() {
+// 	fmt.Println("\n----STATE----")
+// 	fmt.Printf("PATH:")
 
-	for i, m := range g.movChain_ {
-		fmt.Printf("\n	[%d] ", i)
-		m.Print()
-	}
+// 	for i, m := range g.movChain_ {
+// 		fmt.Printf("\n	[%d] ", i)
+// 		m.Print()
+// 	}
 
-	fmt.Println("\nGRID:", g.grid)
-	fmt.Println("\n")
-}
+// 	fmt.Println("\nGRID:", g.grid)
+// 	fmt.Println("\n")
+// }
 
 // Initialize the game with the starting state matrix
 func (g *SBPState) TinyPrint() {
@@ -89,12 +90,10 @@ func (g *SBPState) TinyPrint() {
 	fmt.Printf(" PATH<%d>:", g.movChainCount_)
 
 	for _, m := range g.movChain_ {
-		//fmt.Printf("\n	[%d] ", i)
 		fmt.Print(" ")
 		m.Print()
 	}
 
-	//fmt.Println("\n")
 }
 
 /**
@@ -194,36 +193,6 @@ func (g *SBPState) ToHash() int {
 	return hash
 }
 
-// func (s *SBPState) PropagateUpdate() {
-
-// 	// Back:
-// 	parent := s.prevState_
-// 	if parent != nil {
-// 		//if parent.CollapsedPathLen() > s.movChainCount_+1 {
-// 		//
-// 		// Well, it seems that two states are at least at distance 1. But this is not true if the movement
-// 		// is performed on the last moved piece. So if the path to reach state1 ends moving pieceX, then the
-// 		// state2 that results in moving pieceX again has the same length!
-// 		if parent.CollapsedPathLen() > s.movChainCount_ {
-// 			//fmt.Print("[propagate back]")
-// 			movToPrev := s.prevMov_.Inverted().(*grids.GridMov2)
-
-// 			parent.copyMovChainAndAdd(s.movChain_, movToPrev)
-// 			parent.PropagateUpdate()
-// 		}
-// 	}
-
-// 	// Forward
-// 	for idx, next := range s.nextStates_ {
-// 		//if next.CollapsedPathLen() > s.movChainCount_+1 {
-// 		if next.CollapsedPathLen() > s.movChainCount_ {
-// 			//fmt.Print("[propagate forward]")
-// 			next.copyMovChainAndAdd(s.movChain_, s.nextMovs_[idx])
-// 			next.PropagateUpdate()
-// 		}
-// 	}
-// }
-
 func (s *SBPState) PrevState() GameState {
 	return s.prevState_
 }
@@ -238,8 +207,6 @@ func (s *SBPState) SetPrevState(prev GameState, mov GameMov) {
 		ss = prev.(*SBPState)
 		s.depth_ = ss.depth_ + 1
 	}
-
-	//s.AddEquivPath(prev, mov)
 
 	s.prevState_ = prev
 	s.prevMov_ = mov
@@ -296,12 +263,7 @@ func (s *SBPState) Depth() int {
 	return s.depth_
 }
 
-// func (s *SBPState) MovChain() GameMov {
-// 	return s.movChain_
-// }
-
 func (s *SBPState) CollapsedPathLen() int {
-	//return len(s.movChain_)
 	return s.movChainCount_
 }
 
@@ -340,12 +302,7 @@ func (s *SBPState) DetectAlikePieces(pieces []*grids.GridPiece2, notAutoalikePie
 
 func (s *SBPState) updatePieceToValue(pieces []*grids.GridPiece2, notAutoalikePieces []int) {
 
-	// Maps each piece id to the piece value, useful for states comparison
-	//s.pieceToValue_ = make(map[int]int)
-	s.pieceToValue_ = getPieceToValueMap()
-
-	// Add the grid's 0 value
-	//s.pieceToValue_[0] = 0
+	// Edit not-autoalike piece values
 	for _, id := range notAutoalikePieces {
 		for _, q := range pieces {
 			if q.Id() == id {
@@ -355,10 +312,13 @@ func (s *SBPState) updatePieceToValue(pieces []*grids.GridPiece2, notAutoalikePi
 		}
 	}
 
+	// Assign the map
+	s.pieceToValue_ = getPieceToValueMap()
+
+	// Finally edit the map
 	for _, p := range pieces {
 		s.pieceToValue_.Set(p.Id(), p.Value())
 	}
-
 }
 
 // func (g *SBPState) ValidMovements(pieces []*grids.GridPiece2, seq *[]GameMov, lastMov GameMov, curPieceTrajectory []GameMov) {
@@ -425,15 +385,6 @@ func (s *SBPState) PlacePiece(p *grids.GridPiece2) {
 	s.grid.PlacePiece(p)
 }
 
-// // Builds reverse path to reach root parent
-// func (s *SBPState) BuildPath(path []GameMov) {
-
-// 	if s.prevState_ != nil {
-// 		path = append(path, s.prevMov_)
-// 		s.prevState_.BuildPath(path)
-// 	}
-// }
-
 func (s *SBPState) BuildPathReversed(path *[]GameMov) {
 
 	if s.prevState_ != nil {
@@ -455,7 +406,17 @@ func (s *SBPState) ValidMovementsBFS(pieces []*grids.GridPiece2) []GameMov {
 	if s.prevMov_ != nil {
 		pieceId = s.prevMov_.PieceId()
 	}
-	//fmt.Printf("\nPrev moved piece: %d", pieceId)
+
+	// var piecePath []*grids.GridMov2 = nil
+	// if curPieceTrajectory != nil && len(curPieceTrajectory) > 0 {
+	// 	for _, m := range curPieceTrajectory {
+	// 		gMov, ok := m.(*grids.GridMov2)
+	// 		if !ok {
+	// 			panic("[SbpState::ValidMovements] mov is not a []*GridMov2!")
+	// 		}
+	// 		piecePath = append(piecePath, gMov)
+	// 	}
+	// }
 
 	for _, p := range pieces {
 

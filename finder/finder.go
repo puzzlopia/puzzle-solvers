@@ -1,6 +1,6 @@
 package finder
 
-import "github.com/edgarweto/puzzlopia/solvers/games"
+import "github.com/edgarweto/puzzlopia/puzzle-solvers/games"
 
 // Basic finder interface
 type Finder interface {

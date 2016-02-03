@@ -4,10 +4,10 @@ import "fmt"
 import "time"
 import "github.com/fatih/color"
 
-import "github.com/edgarweto/puzzlopia/solvers/utils"
-import "github.com/edgarweto/puzzlopia/solvers/games"
+import "github.com/edgarweto/puzzlopia/puzzle-solvers/utils"
+import "github.com/edgarweto/puzzlopia/puzzle-solvers/games"
 
-import "github.com/edgarweto/puzzlopia/solvers/grids" //TO REMOVE DEPENDENCY
+import "github.com/edgarweto/puzzlopia/puzzle-solvers/grids" //TO REMOVE DEPENDENCY
 
 // Sliding blocks puzzle finder
 type SbpBfsFinder struct {
@@ -85,6 +85,7 @@ func (f *SbpBfsFinder) GetResult() (found bool, cr int, dur time.Duration) {
 	return true, (*f.foundState_).CollapsedPathLen(), f.duration_
 }
 
+// Prints statistics and results
 func (f *SbpBfsFinder) Resume() {
 
 	f.fmtHeaders_.Println("\n - Condition: ", f.endStatus_)
@@ -158,6 +159,7 @@ func (f *SbpBfsFinder) SolvePuzzle(g games.Playable, extremals *games.GameStates
 	}
 }
 
+// Implements the BFS algorithm. Uses a priority queue to save pending nodes to be visited; explores one node at a time.
 func (f *SbpBfsFinder) exploreTree() {
 
 	statesCount := 1
@@ -176,6 +178,9 @@ func (f *SbpBfsFinder) exploreTree() {
 
 		var reversePath []games.GameMov
 		curState.BuildPathReversed(&reversePath)
+
+		// var pieceTrajectory grids.GridPath2
+		// pieceTrajectory.BuildFromReversePath(reversePath)
 
 		f.game_.SetState(curState)
 		validMovs := f.game_.ValidMovementsBFS()
@@ -197,6 +202,7 @@ func (f *SbpBfsFinder) exploreTree() {
 			f.game_.UndoMove(mov)
 		}
 
+		// Let's visite next pending state
 		curState = f.popFrontier()
 	}
 	if curState == nil {
@@ -204,8 +210,14 @@ func (f *SbpBfsFinder) exploreTree() {
 	}
 }
 
+// Checks whether the state is new or have been previously processed.
+// If it isn't new, then compares the path length and decides if it is worth re-visiting it.
 func (f *SbpBfsFinder) processState(s games.GameState, reversePath []games.GameMov, mov games.GameMov) {
+
 	h := s.ToHash()
+	if f.debug_ {
+		f.outDbg1_.Printf("\n	 - Process state. Hash: %d, MOV: %v", h, mov)
+	}
 
 	chain := f.reversePathOn(reversePath, mov)
 	s.SetMovChain(chain)
@@ -225,11 +237,9 @@ func (f *SbpBfsFinder) processState(s games.GameState, reversePath []games.GameM
 		}
 	}
 
-	if f.debug_ {
-		f.outDbg1_.Printf("\n	 - Process state. Hash: %d, MOV: %v", h, mov)
-	}
-
 	if f.visitedStates_[h] == nil {
+
+		// Easy, it is a new state
 		f.countStates_.Incr()
 		f.visitedStates_[h] = append(f.visitedStates_[h], s)
 
@@ -244,6 +254,8 @@ func (f *SbpBfsFinder) processState(s games.GameState, reversePath []games.GameM
 		}
 
 	} else {
+
+		// We still need to compare it with other states to see if it is a new state or not.
 		for _, st := range f.visitedStates_[h] {
 			if st.Equal(s) {
 
@@ -289,7 +301,7 @@ func (f *SbpBfsFinder) processState(s games.GameState, reversePath []games.GameM
 			}
 		}
 
-		// Ok, hash collision. Add this new state!
+		// Ok, new state with hash collision.
 		f.countStates_.Incr()
 		f.visitedStates_[h] = append(f.visitedStates_[h], s)
 
@@ -306,6 +318,7 @@ func (f *SbpBfsFinder) processState(s games.GameState, reversePath []games.GameM
 	}
 }
 
+// Push back to the priority queue that state.
 func (f *SbpBfsFinder) addToFrontier(s games.GameState) {
 	if f.debug_ {
 		f.outDbg2_.Printf("\n	  Add to frontier: state [%d], from move %v", s.Uid(), s.PrevMov())
@@ -315,6 +328,7 @@ func (f *SbpBfsFinder) addToFrontier(s games.GameState) {
 	s.SetWaiting(true)
 }
 
+// Pop from start of queue (highest priority)
 func (f *SbpBfsFinder) popFrontier() games.GameState {
 
 	x := f.frontier_.PopFront()
@@ -333,6 +347,8 @@ func (f *SbpBfsFinder) popFrontier() games.GameState {
 	return nil
 }
 
+// Called every time we found the objective state (solution of puzzle). We check whether the new
+// solution is better or not.
 func (f *SbpBfsFinder) updateObjective(s games.GameState) {
 
 	s.MarkAsObjective()

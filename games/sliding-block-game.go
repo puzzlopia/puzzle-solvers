@@ -1,7 +1,7 @@
 package games
 
 //import "fmt"
-import "github.com/edgarweto/puzzlopia/solvers/grids"
+import "github.com/edgarweto/puzzlopia/puzzle-solvers/grids"
 
 // Sliding Block Game type
 type SBGame struct {
