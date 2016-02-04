@@ -27,6 +27,11 @@ type SbpBfsFinder struct {
 	search_     *games.SBPState
 	foundState_ *defs.GameState
 
+	// If we are searching for a concrete state
+	extremals_     []defs.GameState
+	extremalDist_  int
+	findExtremals_ bool
+
 	// Stats
 	countStates_  utils.ScalarStatistic
 	nodesDegree_  utils.ScalarStatistic
@@ -120,7 +125,7 @@ func (f *SbpBfsFinder) Resume() {
  * @param {int} maxSteps Max depth of the search
  * @param {int} maxExtremals Max number of extremal states returned
  */
-func (f *SbpBfsFinder) SolvePuzzle(g defs.Playable, extremals *defs.GameStates) {
+func (f *SbpBfsFinder) SolvePuzzle(g defs.Playable) {
 
 	if !f.silent_ {
 		fmt.Println("Puzzle Finder v.1.0")
@@ -194,6 +199,8 @@ func (f *SbpBfsFinder) exploreTree() {
 			f.outDbg2_.Printf("	 Valid movs:%v", len(validMovs))
 		}
 
+		frontierSize := f.frontier_.Size()
+
 		for _, mov := range validMovs {
 
 			f.game_.Move(mov)
@@ -203,6 +210,11 @@ func (f *SbpBfsFinder) exploreTree() {
 			f.processState(newState, reversePath, mov)
 
 			f.game_.UndoMove(mov)
+		}
+
+		// Detect extremal states:
+		if f.findExtremals_ && f.frontier_.Size() == frontierSize {
+			f.addExtremalState(curState)
 		}
 
 		// Let's visite next pending state
@@ -380,4 +392,102 @@ func (f *SbpBfsFinder) reversePathOn(path []defs.Command, mov defs.Command) []de
 	}
 	result[len(path)] = mov
 	return result
+}
+
+/**
+ * @summary Makes a depth-search and returns the most 'distant' states.
+ *
+ * @param {defs.Playable} g The sequential game
+ * @param {int} maxSteps Max depth of the search
+ * @param {int} maxExtremals Max number of extremal states returned
+ */
+func (f *SbpBfsFinder) FindExtremals(g defs.Playable) {
+
+	f.findExtremals_ = true
+
+	if !f.silent_ {
+		fmt.Println("Puzzle Finder v.1.0")
+	}
+	f.fmtHeaders_ = color.New(color.FgCyan, color.Bold)
+
+	f.outDbg1_ = color.New(color.FgCyan)
+	f.outDbg2_ = color.New(color.FgWhite)
+	f.outDbg3_ = color.New(color.FgYellow)
+
+	f.countStates_.Set("States")
+	f.nodesDegree_.Set("Node degree")
+	f.frontierSize_.Set("Frontier size")
+
+	f.game_ = g
+	f.visitedStates_ = make(map[int][]defs.GameState)
+	f.initState_ = f.game_.State()
+
+	h := f.initState_.ToHash()
+	f.visitedStates_[h] = append(f.visitedStates_[h], f.initState_)
+	f.addToFrontier(f.initState_)
+	f.countStates_.Incr()
+
+	tStart := time.Now()
+	if !f.silent_ {
+		f.fmtHeaders_.Println("\n[WORKING]...")
+	}
+
+	f.exploreTree()
+
+	tEnd := time.Now()
+	f.duration_ = tEnd.Sub(tStart)
+	if !f.silent_ {
+		f.fmtHeaders_.Println("\n[DONE] ", f.duration_)
+	}
+
+	if !f.silent_ {
+		f.resumeExtremals()
+	}
+}
+
+// Prints statistics and results
+func (f *SbpBfsFinder) resumeExtremals() {
+
+	f.fmtHeaders_.Println("\n - Condition: ", f.endStatus_)
+
+	f.fmtHeaders_.Println("\n[STATS]")
+	f.countStates_.Resume(f.outDbg2_)
+	f.nodesDegree_.ResumeAv(f.outDbg2_)
+	f.frontierSize_.ResumeRange(f.outDbg2_)
+
+	f.fmtHeaders_.Printf("\n\n[EXTREMAL STATES] Found: %d\n", len(f.extremals_))
+
+	if len(f.extremals_) > 0 {
+		f.extremals_[0].TinyPrint()
+	}
+
+	// if f.search_ != nil {
+	// 	f.fmtHeaders_.Println("\n\n[SOLUTION]\n")
+
+	// 	search := color.New(color.FgYellow, color.Bold)
+
+	// 	if f.foundState_ != nil {
+	// 		search.Println("Found! Path len: ", (*f.foundState_).CollapsedPathLen())
+
+	// 		(*f.foundState_).TinyPrint()
+	// 	} else {
+	// 		search.Println("Not found.")
+	// 	}
+	// }
+	fmt.Println("\n\n")
+}
+
+// We are interested in extremal states, those at larger distance from the start state.
+func (f *SbpBfsFinder) addExtremalState(s defs.GameState) {
+
+	if s.Depth() > f.extremalDist_ {
+
+		// Then reset and add the state
+		f.extremalDist_ = s.Depth()
+		f.extremals_ = f.extremals_[:0]
+		f.extremals_ = append(f.extremals_, s)
+	} else if s.Depth() == f.extremalDist_ {
+
+		f.extremals_ = append(f.extremals_, s)
+	}
 }

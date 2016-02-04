@@ -408,17 +408,6 @@ func (s *SBPState) ValidMovementsBFS(pieces []*grids.GridPiece2, pieceTrajectory
 		pieceId = s.prevMov_.PieceId()
 	}
 
-	// var piecePath []*grids.GridMov2 = nil
-	// if curPieceTrajectory != nil && len(curPieceTrajectory) > 0 {
-	// 	for _, m := range curPieceTrajectory {
-	// 		gMov, ok := m.(*grids.GridMov2)
-	// 		if !ok {
-	// 			panic("[SbpState::ValidMovements] mov is not a []*GridMov2!")
-	// 		}
-	// 		piecePath = append(piecePath, gMov)
-	// 	}
-	// }
-
 	for _, p := range pieces {
 
 		movs := s.grid.PieceMovements(p)
@@ -433,7 +422,6 @@ func (s *SBPState) ValidMovementsBFS(pieces []*grids.GridPiece2, pieceTrajectory
 					}
 				}
 			}
-
 		} else {
 			for _, m := range movs {
 				otherMovs = append(otherMovs, m)
@@ -447,32 +435,6 @@ func (s *SBPState) ValidMovementsBFS(pieces []*grids.GridPiece2, pieceTrajectory
 	for _, m := range otherMovs {
 		seq = append(seq, m)
 	}
-
-	// for _, p := range pieces {
-
-	// 	movs := s.grid.PieceMovements(p)
-
-	// 	// if pieceId > 0 && pieceId == p.Id() {
-	// 	// 	for _, m := range movs {
-	// 	// 		if !m.IsInverse(lastMov) {
-
-	// 	// 			// We need to avoid, when moving one piece consecutively, trajectories that touch themselves!
-	// 	// 			if piecePath == nil || !grids.TrajectoryTouchesWithMov(piecePath, m) {
-	// 	// 				samePieceMovs = append(samePieceMovs, m)
-	// 	// 			}
-	// 	// 		}
-	// 	// 	}
-
-	// 	// } else {
-	// 	// 	for _, m := range movs {
-	// 	// 		otherMovs = append(otherMovs, m)
-	// 	// 	}
-	// 	// }
-
-	// 	for _, m := range movs {
-	// 		seq = append(seq, m)
-	// 	}
-	// }
 
 	return seq
 }

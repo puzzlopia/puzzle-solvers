@@ -10,8 +10,11 @@ type Finder interface {
 	SetDebug(bool)
 	SilentMode(bool)
 
+	// Searches for the shortest path to solve the puzzle
+	SolvePuzzle(g defs.Playable)
+
 	// Searches for the farthest states from current state
-	SolvePuzzle(g defs.Playable, extremals defs.GameStates)
+	FindExtremals(g defs.Playable)
 }
 
 // Finder limits: depth and number of different states

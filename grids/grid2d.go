@@ -160,9 +160,9 @@ func (g *Matrix2d) CanPieceMove(p *GridPiece2, dRow int, dCol int) bool {
 	cols := g.Cols()
 	pieceId := p.Id()
 
-	for _, cell := range p.cells {
-		row := p.position[0] + cell[0] + dRow
-		col := p.position[1] + cell[1] + dCol
+	for _, cell := range p.cells_ {
+		row := p.position_[0] + cell[0] + dRow
+		col := p.position_[1] + cell[1] + dCol
 
 		if row < 0 || row >= rows || col < 0 || col >= cols {
 			return false
@@ -184,9 +184,9 @@ func (g *Matrix2d) ClearPiece(p *GridPiece2) {
 	cols := g.Cols()
 	pieceId := p.Id()
 
-	for _, cell := range p.cells {
-		row := p.position[0] + cell[0]
-		col := p.position[1] + cell[1]
+	for _, cell := range p.cells_ {
+		row := p.position_[0] + cell[0]
+		col := p.position_[1] + cell[1]
 
 		if row < 0 || row >= rows || col < 0 || col >= cols {
 			fmt.Printf("\n\n		*ERROR: <grid2d::ClearPiece> Invalid cell position (%d,%d)", row, col)
@@ -200,16 +200,16 @@ func (g *Matrix2d) ClearPiece(p *GridPiece2) {
 	}
 }
 
-// Sets to 0 all piece cells into the matrix
+// Sets to piece.Id() all piece cells into the matrix
 func (g *Matrix2d) PlacePiece(p *GridPiece2) {
 
 	rows := g.Rows()
 	cols := g.Cols()
 	pieceId := p.Id()
 
-	for _, cell := range p.cells {
-		row := p.position[0] + cell[0]
-		col := p.position[1] + cell[1]
+	for _, cell := range p.cells_ {
+		row := p.position_[0] + cell[0]
+		col := p.position_[1] + cell[1]
 
 		if row < 0 || row >= rows || col < 0 || col >= cols {
 			fmt.Printf("\n\n		*ERROR: <grid2d::PlacePiece> Invalid cell position (%d,%d)", row, col)
@@ -223,7 +223,7 @@ func (g *Matrix2d) PlacePiece(p *GridPiece2) {
 	}
 }
 
-// Sets to 0 all piece cells into the matrix
+// Reads the matrix and positionates each piece.
 func (g *Matrix2d) UpdatePiecePositions(piecesById map[int]*GridPiece2) {
 
 	rows := g.Rows()
@@ -241,7 +241,7 @@ func (g *Matrix2d) UpdatePiecePositions(piecesById map[int]*GridPiece2) {
 				if !ok {
 					p := piecesById[v]
 					foundPieces[v] = true
-					p.SetPosition(r, c)
+					p.SetPositionTL(r, c)
 					countPieces++
 
 					if countPieces == numPieces {
