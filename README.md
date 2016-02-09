@@ -36,13 +36,13 @@ You only need to edit the 'main.go' file, uncomment 'solvingPennant()' and comme
   Pennant. (They must have the same shape!).
   You can do it automatically:
 
-  ```js
+  ```go
   myPuzzle.AutoAlikePieces()
   ```
 
   If there is a piece with the same shape as others and you need it not to be marked as 'alike' (this is common in a SBP where there are several 1x1 pieces and one of them is the piece used in the objective position), then you can specify that:
 
-  ```js
+  ```go
   myPuzzle.SetNotAlikePiece(5)
   ```
   By default, all pieces are different.
@@ -56,7 +56,7 @@ You only need to edit the 'main.go' file, uncomment 'solvingPennant()' and comme
 
 3. **Compile and run**. If the solver finds a solution, it will print it to the console. For Pennant example:
 
-  ```js
+  ```bash
   Found! Path len:  59
 
   [id:4876] depth:83, GRID: [[7 6 3 3] [7 6 1 1] [0 0 5 4] [2 2 9 9] [2 2 8 8]]
