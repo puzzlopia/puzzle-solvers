@@ -184,6 +184,12 @@ func (f *SbpBfsFinder) exploreTree() {
 			break
 		}
 
+		update := f.limits_.maxStates_ / 10
+		if f.limits_.maxStates_ > 0 && statesCount%update == 0 {
+			pct := (100 * statesCount / f.limits_.maxStates_)
+			fmt.Printf("\n%d%%", pct)
+		}
+
 		var reversePath []defs.Command
 		curState.BuildPathReversed(&reversePath)
 

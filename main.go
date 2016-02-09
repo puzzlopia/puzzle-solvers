@@ -2,7 +2,7 @@ package main
 
 func main() {
 
-	solvingPennant()
+	//solvingPennant()
 
-	//doingTests()
+	doingTests()
 }

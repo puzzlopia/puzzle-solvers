@@ -7,6 +7,8 @@ But it is also to solve other puzzles, be it Sudokus, Sparse Sliding Blocks Puzz
 
 I want [puzzlopia](http://www.puzzlopia.com) to have any type of puzzle, so I hope to add solvers for each type it deserves. And having a puzzle solver is a must if you also want to design new puzzles.
 
+There are several inspiring attempts to develop solvers and finders. See [Neil's posts](https://nbickford.wordpress.com/2012/01/22/sliding-block-puzzles-part-3/) or [puzzlebeast](http://puzzlebeast.com/) for example. There is room for more ideas, algorithms and of course, puzzles.
+
 Finally, a public repository can be viewed by other people, so they can just add more algorithms, better implementations, improve the solvers, fix bugs, etc.
 
 
@@ -61,13 +63,23 @@ You only need to edit the 'main.go' file, uncomment 'solvingPennant()' and comme
   PATH<59>: [4]~(0, 1) [4]~(0, 1) [5]~(0, 1) [5]~(0, 1) [2]~(1, 0) [1]~(0, -1) [1]~(0, -1) [3]~(-1, 0) [5]~(-1, 0) [5]~(0, 1) [2]~(0, 1) [6]~(-1, 0) [6]~(-1, 0) [7]~(0, -1) [8]~(0, -1) [9]~(0, -1) [4]~(1, 0) [4]~(1, 0) [5]~(1, 0) [5]~(1, 0) [2]~(0, 1) [6]~(0, 1) [7]~(-1, 0) [7]~(-1, 0) [8]~(0, -1) [5]~(0, -1) [4]~(-1, 0) [9]~(0, 1) [8]~(1, 0) [5]~(0, -1) [5]~(0, -1) [4]~(0, -1) [4]~(0, -1) [2]~(1, 0) [3]~(1, 0) [1]~(0, 1) [1]~(0, 1) [6]~(-1, 0) [4]~(-1, 0) [5]~(0, 1) [7]~(1, 0) [6]~(0, -1) [4]~(-1, 0) [4]~(-1, 0) [5]~(-1, 0) [5]~(-1, 0) [7]~(0, 1) [6]~(1, 0) [6]~(1, 0) [5]~(0, -1) [5]~(-1, 0) [3]~(0, -1) [3]~(0, -1) [1]~(1, 0) [4]~(0, 1) [4]~(0, 1) [5]~(0, 1) [5]~(0, 1) [3]~(-1, 0) [1]~(0, -1) [4]~(1, 0) [5]~(0, 1) [3]~(0, 1) [6]~(-1, 0) [6]~(-1, 0) [7]~(0, -1) [2]~(0, -1) [4]~(1, 0) [4]~(1, 0) [5]~(1, 0) [5]~(1, 0) [1]~(0, 1) [3]~(0, 1) [6]~(0, 1) [7]~(-1, 0) [7]~(-1, 0) [2]~(0, -1) [4]~(0, -1) [4]~(-1, 0) [9]~(-1, 0) [8]~(0, 1) [8]~(0, 1) [2]~(1, 0)
   ```
 
+## Dependencies
+You will need the [fatih package](https://github.com/fatih/color), used to colorize the console output. Install:
+```bash
+go get github.com/fatih/color
+```
 
 ## Next changes
 Among the developments I would like to add:
 - Refactor: I want to make cleaner interfaces, difficult because algorithms tend to perform better as more information is accessible, and this means larger interfaces and increased coupling.
-- Improve current implementation: if you try to solve puzzlopia's [Ninja II](http://www.puzzlopia.com/puzzles/ninja-ii/play) you will see that it takes more than seconds.
+- Improve current implementation: should be able to solve puzzlopia's [Ninja II](http://www.puzzlopia.com/puzzles/ninja-ii/play) (whithout waiting minutes).
 - Prove (or at least know the limitations) that the algorithm always finds the optimal solution with 'move metric'.
 - Add a user interface, probably a web interface.
+- Add more features, like pieces with restrictions, puzzle and algorithm analytics, and more solvers (for sudokus, etc.)
 
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/puzzlopia/puzzle-solvers/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
+## Contributors
+
+- [Edgar Güeto](https://github.com/edgarweto)
+
 
