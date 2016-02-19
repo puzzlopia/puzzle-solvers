@@ -177,6 +177,38 @@ func (g *Matrix2d) CanPieceMove(p *GridPiece2, dRow int, dCol int) bool {
 	return true
 }
 
+// Returns true if the piece can be moved dRow rows and dCol cols (one at a time)
+func (g *Matrix2d) ValidMove(mov GridMov2) bool {
+
+	pieceId := mov.PieceId()
+	dRow, dCol := mov.Translation()
+
+	rows := g.Rows()
+	cols := g.Cols()
+
+	for r := 0; r < rows; r++ {
+		for c := 0; c < cols; c++ {
+			x := g.At(r, c)
+
+			if x == pieceId {
+				row := r + dRow
+				col := c + dCol
+
+				if row < 0 || row >= rows || col < 0 || col >= cols {
+					return false
+				}
+				c := g.At(row, col)
+
+				if c != 0 && c != pieceId {
+					return false
+				}
+			}
+		}
+	}
+
+	return true
+}
+
 // Sets to 0 all piece cells into the matrix
 func (g *Matrix2d) ClearPiece(p *GridPiece2) {
 
@@ -189,11 +221,13 @@ func (g *Matrix2d) ClearPiece(p *GridPiece2) {
 		col := p.position_[1] + cell[1]
 
 		if row < 0 || row >= rows || col < 0 || col >= cols {
-			fmt.Printf("\n\n		*ERROR: <grid2d::ClearPiece> Invalid cell position (%d,%d)", row, col)
+			fmt.Printf("\n\n		*ERROR: <grid2d::ClearPiece> Invalid cell OUTSIDE position (%d,%d)\n", row, col)
+			panic("<grid2d::ClearPiece> Invalid matrix cell")
 		}
 
 		if pieceId != g.At(row, col) {
-			fmt.Printf("\n\n		*ERROR: <grid2d::ClearPiece> Invalid matrix cell value %d at (%d,%d)", g.At(row, col), row, col)
+			fmt.Printf("\n\n		*ERROR: <grid2d::ClearPiece> Invalid matrix cell VALUE %d at (%d,%d) while clearing piece %d\n", g.At(row, col), row, col, pieceId)
+			panic("<grid2d::ClearPiece> Invalid matrix cell")
 		}
 
 		g.SetAt(row, col, 0)
@@ -212,14 +246,65 @@ func (g *Matrix2d) PlacePiece(p *GridPiece2) {
 		col := p.position_[1] + cell[1]
 
 		if row < 0 || row >= rows || col < 0 || col >= cols {
-			fmt.Printf("\n\n		*ERROR: <grid2d::PlacePiece> Invalid cell position (%d,%d)", row, col)
+			fmt.Printf("\n\n		*ERROR: <grid2d::PlacePiece> Invalid cell OUTSIDE position (%d,%d)", row, col)
+			panic("<grid2d::PlacePiece> Invalid matrix cell")
 		}
 
 		if 0 != g.At(row, col) {
 			fmt.Printf("\n\n		*ERROR: <grid2d::PlacePiece> Invalid matrix cell value %d at (%d,%d)", g.At(row, col), row, col)
+			panic("<grid2d::PlacePiece> Invalid matrix cell")
 		}
 
 		g.SetAt(row, col, pieceId)
+	}
+}
+
+// Moves each detected piece cell using the movement object.
+// TODO: optimize this using only the piece's cell structure to avoid reading the whole grid.
+func (g *Matrix2d) ApplyRawTranslation(pieceId int, mov GridMov2) {
+	rows := g.Rows()
+	cols := g.Cols()
+
+	dRow, dCol := mov.Translation()
+
+	// First, calc piece cells:
+	cells := [][]int{}
+	for r := 0; r < rows; r++ {
+		for c := 0; c < cols; c++ {
+			x := g.At(r, c)
+
+			if x == pieceId {
+				cells = append(cells, []int{r, c})
+
+				g.SetAt(r, c, 0) //clear old place
+			}
+		}
+	}
+
+	// for r := 0; r < rows; r++ {
+	// 	for c := 0; c < cols; c++ {
+	for _, cell := range cells {
+		r := cell[0]
+		c := cell[1]
+
+		newRow := r + dRow
+		newCol := c + dCol
+
+		if newRow < 0 || newRow >= rows || newCol < 0 || newCol >= cols {
+			fmt.Printf("\n\n		*ERROR::ApplyRawTranslation Cannot move piece %d to OUTSIDE cell (%d,%d)\n", pieceId, newRow, newCol)
+			panic("[grids::ApplyRawTranslation] invalid movement!")
+		}
+
+		// And rewrite
+		y := g.At(newRow, newCol)
+
+		if y != 0 {
+			fmt.Printf("\n\n		*ERROR::ApplyRawTranslation Cannot move piece %d to cell (%d,%d) occupied by %d\n", pieceId, newRow, newCol, y)
+			panic("[grids::ApplyRawTranslation] invalid movement!")
+		}
+
+		g.SetAt(newRow, newCol, pieceId) //set new place
+
 	}
 }
 
@@ -251,4 +336,24 @@ func (g *Matrix2d) UpdatePiecePositions(piecesById map[int]*GridPiece2) {
 			}
 		}
 	}
+}
+
+// Reads the matrix and positionates each piece.
+func (g *Matrix2d) Identical(m Matrix2d) bool {
+
+	rows := g.Rows()
+	cols := g.Cols()
+
+	if rows == m.Rows() && cols == m.Cols() {
+		for r := 0; r < rows; r++ {
+			for c := 0; c < cols; c++ {
+
+				if g.At(r, c) != m.At(r, c) {
+					return false
+				}
+			}
+		}
+	}
+
+	return true
 }

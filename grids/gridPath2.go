@@ -28,6 +28,11 @@ func (p *GridPath2) Path() []defs.Command {
 	return p.path_
 }
 
+func PathFromSlice(path []defs.Command) *GridPath2 {
+
+	return &GridPath2{path}
+}
+
 // Returns true if the 'mov' makes the trajectory to touch itself.
 // Example
 /**
@@ -103,5 +108,28 @@ func TrajectoryTouchesWithMov(invertedPath []defs.Command, mov defs.Command) boo
 		}
 	}
 
+	return false
+}
+
+// Returns true if the paths are the same
+func (p *GridPath2) IsEquivalent(path [][]int, inverted bool) bool {
+	if len(p.path_) == len(path) {
+		s := len(path) - 1
+		for idx, m := range p.path_ {
+
+			mov := m.(*GridMov2)
+
+			if inverted {
+				if !mov.IsTheSame(path[s-idx]) {
+					return false
+				}
+			} else {
+				if !mov.IsTheSame(path[idx]) {
+					return false
+				}
+			}
+		}
+		return true
+	}
 	return false
 }

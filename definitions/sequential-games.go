@@ -23,7 +23,7 @@ type GameState interface {
 	// Generates an integer based on the state. Useful to insert in hashes.
 	ToHash() int
 
-	SetMovChain([]Command)
+	SetMovChain([]Command, *GameState)
 
 	CollapsedPathLen() int
 	RealPathLen() int
@@ -31,13 +31,16 @@ type GameState interface {
 	//PropagateUpdate()
 	AddNextState(GameState, Command)
 	SetPrevState(GameState, Command)
+	UpdateFromPrevState()
+	CheckPathAndState()
 	PrevState() GameState
 	PrevMov() Command
 	SamePieceMovedNext(Command) bool
 
 	TinyPrint()
+	TinyGoPrint()
 
-	CopyMovChainAndAdd([]Command, Command)
+	CopyMovChainAndAdd([]Command, Command, *GameState)
 
 	PathChain() []Command
 	BuildPathReversed(path *[]Command)
@@ -47,11 +50,14 @@ type GameState interface {
 	Waiting() bool
 	SetDepth(int)
 	Depth() int
+	MarkToDebug()
+	MarkedToDebug() bool
 
 	// Adds an equivalent node-path. Finally if this node is part of a solution, we can check all the descendant paths to origin
 	// and select the shortest.
 	AddEquivPath(GameState, []Command, Command)
-	ApplyEquivalencyContinuity(GameState, Command) bool
+	ValidMovement(m Command) bool
+	ApplyEquivalencyContinuity(GameState, Command, GameState) bool
 }
 
 // A slice of game states
@@ -83,8 +89,7 @@ type Playable interface {
 	// Returns a copy of current state
 	State() (s GameState)
 
-	// Returns current valid movements
-	//ValidMovements(seq *[]Command, lastMov Command, curPieceTrajectory []Command)
+	//PiecesById() map[int]*grids.GridPiece2
 
 	// For a fixed state, there is a concrete set of movements that can be done. But,
 	// for the sake of algorithm performance, we can minimize that set by giving more

@@ -12,8 +12,8 @@ func (m *GridMov2) PieceId() int {
 	return m.pieceId
 }
 
-func (m *GridMov2) SameMov(dRow int, dCol int) bool {
-	return m.dRow == dRow && m.dCol == dCol
+func (m *GridMov2) Translation() (dRow int, dCol int) {
+	return m.dRow, m.dCol
 }
 
 func (m *GridMov2) Inverted() interface{} {
@@ -35,5 +35,13 @@ func (m *GridMov2) IsInverse(x interface{}) bool {
 }
 
 func (m *GridMov2) Print() {
-	fmt.Printf("[%d]~(%d, %d)", m.pieceId, m.dRow, m.dCol)
+	//fmt.Printf("[%d]~(%d, %d)", m.pieceId, m.dRow, m.dCol)
+
+	// To be used directly on the puzzlopia's puzzle player. JSON format
+	fmt.Printf("[%d, %d, %d]", m.pieceId, m.dRow, m.dCol)
+}
+
+// Returns true if the rawMov is the same movement expressed as array.
+func (m *GridMov2) IsTheSame(rawMov []int) bool {
+	return m.pieceId == rawMov[0] && m.dRow == rawMov[1] && m.dCol == rawMov[2]
 }
