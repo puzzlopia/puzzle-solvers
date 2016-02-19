@@ -26,11 +26,13 @@ As you can see if you run the code ('pennant_test' or 'solving-pennant'), the al
 
 It is easy to implement an algorithm that finds solutions or optimal solutions using 'step metric'. [BFS](https://en.wikipedia.org/wiki/Depth-first_search) does pretty well. But everything changes when you use 'move metric', which seems to be the standard between SBPs experts. This is what current algorithm tries to do.
 
+Currently, *the algorithm doesn't always find the optimal* (see 'checks' folder). Also it would be nice to add a _prune_ optimization.
+
 ## Using the solver
 You only need to edit the 'main.go' file, uncomment 'solvingPennant()' and comment everything else. 
 
 1. **Define the SBP puzzle**:
-  You have to specify the initial state and the goal state. The structure is pretty straightforward: it consists of a matrix of integers, 0 meaning free space and any positive value, a piece.
+  You have to specify the initial state and the goal state. The structure is pretty straightforward: it consists of a matrix (by rows) of integers, 0 meaning free space and any positive value, a piece.
   Each piece must be marked with a different integer.
   To accelerate the algorithm, you can tell the algorithm that there are similar, interchangeable pieces: for example, the small 1x1 squares of
   Pennant. (They must have the same shape!).
@@ -60,7 +62,7 @@ You only need to edit the 'main.go' file, uncomment 'solvingPennant()' and comme
   Found! Path len:  59
 
   [id:4876] depth:83, GRID: [[7 6 3 3] [7 6 1 1] [0 0 5 4] [2 2 9 9] [2 2 8 8]]
-  PATH<59>: [4]~(0, 1) [4]~(0, 1) [5]~(0, 1) [5]~(0, 1) [2]~(1, 0) [1]~(0, -1) [1]~(0, -1) [3]~(-1, 0) [5]~(-1, 0) [5]~(0, 1) [2]~(0, 1) [6]~(-1, 0) [6]~(-1, 0) [7]~(0, -1) [8]~(0, -1) [9]~(0, -1) [4]~(1, 0) [4]~(1, 0) [5]~(1, 0) [5]~(1, 0) [2]~(0, 1) [6]~(0, 1) [7]~(-1, 0) [7]~(-1, 0) [8]~(0, -1) [5]~(0, -1) [4]~(-1, 0) [9]~(0, 1) [8]~(1, 0) [5]~(0, -1) [5]~(0, -1) [4]~(0, -1) [4]~(0, -1) [2]~(1, 0) [3]~(1, 0) [1]~(0, 1) [1]~(0, 1) [6]~(-1, 0) [4]~(-1, 0) [5]~(0, 1) [7]~(1, 0) [6]~(0, -1) [4]~(-1, 0) [4]~(-1, 0) [5]~(-1, 0) [5]~(-1, 0) [7]~(0, 1) [6]~(1, 0) [6]~(1, 0) [5]~(0, -1) [5]~(-1, 0) [3]~(0, -1) [3]~(0, -1) [1]~(1, 0) [4]~(0, 1) [4]~(0, 1) [5]~(0, 1) [5]~(0, 1) [3]~(-1, 0) [1]~(0, -1) [4]~(1, 0) [5]~(0, 1) [3]~(0, 1) [6]~(-1, 0) [6]~(-1, 0) [7]~(0, -1) [2]~(0, -1) [4]~(1, 0) [4]~(1, 0) [5]~(1, 0) [5]~(1, 0) [1]~(0, 1) [3]~(0, 1) [6]~(0, 1) [7]~(-1, 0) [7]~(-1, 0) [2]~(0, -1) [4]~(0, -1) [4]~(-1, 0) [9]~(-1, 0) [8]~(0, 1) [8]~(0, 1) [2]~(1, 0)
+  PATH<59>: [[4, 0, 1],[4, 0, 1],[5, 0, 1],[5, 0, 1],[2, 1, 0],[1, 0, -1],[1, 0, -1],[3, -1, 0],[5, -1, 0],[5, 0, 1],[2, 0, 1],[6, -1, 0],[6, -1, 0],[7, 0, -1],[8, 0, -1],[9, 0, -1],[4, 1, 0],[4, 1, 0],[5, 1, 0],[5, 1, 0],[2, 0, 1],[6, 0, 1],[7, -1, 0],[7, -1, 0],[8, 0, -1],[5, 0, -1],[4, -1, 0],[9, 0, 1],[8, 1, 0],[5, 0, -1],[5, 0, -1],[4, 0, -1],[4, 0, -1],[2, 1, 0],[3, 1, 0],[1, 0, 1],[1, 0, 1],[6, -1, 0],[4, -1, 0],[5, 0, 1],[7, 1, 0],[6, 0, -1],[4, -1, 0],[4, -1, 0],[5, -1, 0],[5, -1, 0],[7, 0, 1],[6, 1, 0],[6, 1, 0],[5, 0, -1],[5, -1, 0],[3, 0, -1],[3, 0, -1],[1, 1, 0],[4, 0, 1],[4, 0, 1],[5, 0, 1],[5, 0, 1],[3, -1, 0],[1, 0, -1],[4, 1, 0],[5, 0, 1],[3, 0, 1],[6, -1, 0],[6, -1, 0],[7, 0, -1],[2, 0, -1],[4, 1, 0],[4, 1, 0],[5, 1, 0],[5, 1, 0],[1, 0, 1],[3, 0, 1],[6, 0, 1],[7, -1, 0],[7, -1, 0],[2, 0, -1],[4, 0, -1],[4, -1, 0],[9, -1, 0],[8, 0, 1],[8, 0, 1],[2, 1, 0]]
   ```
 
 ## Dependencies

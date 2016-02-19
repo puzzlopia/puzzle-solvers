@@ -44,10 +44,12 @@ type SbpBfsFinder struct {
 	endStatus_     string
 	duration_      time.Duration
 
-	debug_      bool
-	debugPath_  [][]int
-	stepDebug_  int
-	fmtHeaders_ *color.Color
+	debug_         bool
+	debugPath_     [][]int
+	debugTemp_     bool //Activates debug for current state
+	debugSteps_    int
+	maxDebugSteps_ int
+	fmtHeaders_    *color.Color
 
 	//outWarning_ *color.Color
 	//out_ *color.Color
@@ -184,14 +186,40 @@ func (f *SbpBfsFinder) exploreTree() {
 			break
 		}
 
-		update := f.limits_.maxStates_ / 10
-		if f.limits_.maxStates_ > 0 && statesCount%update == 0 {
-			pct := (100 * statesCount / f.limits_.maxStates_)
-			fmt.Printf("\n%d%%", pct)
+		if !f.silent_ {
+			update := f.limits_.maxStates_ / 10
+			if f.limits_.maxStates_ > 0 && statesCount%update == 0 {
+				pct := (100 * statesCount / f.limits_.maxStates_)
+				fmt.Printf("\n%d%%", pct)
+			}
 		}
-
 		var reversePath []defs.Command
 		curState.BuildPathReversed(&reversePath)
+
+		// Debug detect path:
+		if f.debugTemp_ && f.debugPath_ != nil {
+			f.debug_ = false
+		}
+
+		if f.debugPath_ != nil {
+			//curPath := grids.GridPath2{reversePath}
+			curPath := grids.PathFromSlice(reversePath)
+			if curPath.IsEquivalent(f.debugPath_, true) {
+				// Ok, activate temporal debug:
+				f.debug_ = true
+				f.debugSteps_ = 0
+				f.maxDebugSteps_ = 30
+			}
+		}
+		if curState.MarkedToDebug() {
+			f.debug_ = true
+		}
+		if f.debug_ {
+			f.debugSteps_++
+		}
+		if f.debugTemp_ && f.debugPath_ != nil && f.debugSteps_ >= f.maxDebugSteps_ {
+			f.debug_ = false
+		}
 
 		var pieceTrajectory grids.GridPath2
 		pieceTrajectory.BuildFromReversePath(reversePath)
@@ -234,6 +262,9 @@ func (f *SbpBfsFinder) exploreTree() {
 // Checks whether the state is new or have been previously processed.
 // If it isn't new, then compares the path length and decides if it is worth re-visiting it.
 func (f *SbpBfsFinder) processState(s defs.GameState, reversePath []defs.Command, mov defs.Command) {
+	if f.debugTemp_ {
+		s.MarkToDebug()
+	}
 
 	h := s.ToHash()
 	if f.debug_ {
@@ -241,13 +272,14 @@ func (f *SbpBfsFinder) processState(s defs.GameState, reversePath []defs.Command
 	}
 
 	chain := f.reversePathOn(reversePath, mov)
-	s.SetMovChain(chain)
+	s.SetMovChain(chain, nil)
 
 	// Stop!
 	// If this state comes from a state with an equivalency, check if that path is shorter:
+	// If shorter, then recover that path
 	if s.PrevState() != nil {
 		oldLen := s.CollapsedPathLen()
-		if s.PrevState().ApplyEquivalencyContinuity(s, mov) {
+		if s.PrevState().ApplyEquivalencyContinuity(s, mov, f.initState_) {
 			newLen := s.CollapsedPathLen()
 			if newLen < oldLen {
 				chain = s.PathChain()
@@ -311,7 +343,12 @@ func (f *SbpBfsFinder) processState(s defs.GameState, reversePath []defs.Command
 							f.outDbg1_.Printf(" Add equivalency.")
 						}
 						// Ok st is waiting and still not processed
-						st.AddEquivPath(s, chain, mov)
+
+						// We can add the equivalency if mov is a valid movement on directly on state st.
+						// They are equivalent, but maybe, due to alike pieces, the mov command cannot be performed!
+						//if st.ValidMovement(mov) {
+						st.AddEquivPath(s, chain, mov) //And s is not processed by now...
+						//}
 					} else {
 						if st.SamePieceMovedNext(mov) {
 							f.addToFrontier(s)
@@ -464,7 +501,7 @@ func (f *SbpBfsFinder) resumeExtremals() {
 	f.fmtHeaders_.Printf("\n\n[EXTREMAL STATES] Found: %d\n", len(f.extremals_))
 
 	if len(f.extremals_) > 0 {
-		f.extremals_[0].TinyPrint()
+		f.extremals_[0].TinyGoPrint()
 	}
 
 	// if f.search_ != nil {

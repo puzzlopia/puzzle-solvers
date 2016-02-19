@@ -19,16 +19,50 @@ func doingTests() {
 	// 	[]int{10, 11, 9, 9},
 	// })
 
-	// Neil's puzzles
+	// // Simplicity2 (http://www.mathpuzzle.com/MAA/31-Sliding%20Block%20Puzzles/mathgames_12_13_04.html)
+	// myPuzzle.Define(&grids.Matrix2d{
+	// 	[]int{1, 1, 2, 3},
+	// 	[]int{4, 5, 10, 3},
+	// 	[]int{4, 5, 6, 6},
+	// 	[]int{8, 8, 7, 7},
+	// 	[]int{9, 0, 0, 7},
+	// })
+	// myPuzzle.AutoAlikePieces()
+	// myPuzzle.SetNotAlikePiece(1)
+
+	// Super-Century
 	myPuzzle.Define(&grids.Matrix2d{
-		[]int{1, 1, 2, 3},
-		[]int{4, 5, 10, 3},
-		[]int{4, 5, 6, 6},
-		[]int{8, 8, 7, 7},
-		[]int{9, 0, 0, 7},
+
+		[]int{4, 6, 1, 2},
+		[]int{4, 3, 10, 10},
+		[]int{5, 3, 10, 10},
+		[]int{5, 8, 8, 7},
+		[]int{0, 0, 9, 9},
 	})
 	myPuzzle.AutoAlikePieces()
-	myPuzzle.SetNotAlikePiece(1)
+
+	// // SuperCompo
+	// myPuzzle.Define(&grids.Matrix2d{
+
+	// 	[]int{0, 1, 1, 0},
+	// 	[]int{9, 1, 1, 10},
+	// 	[]int{2, 3, 4, 6},
+	// 	[]int{2, 3, 4, 6},
+	// 	[]int{7, 5, 5, 8},
+	// })
+	// myPuzzle.AutoAlikePieces()
+	//myPuzzle.SetNotAlikePiece(5)
+
+	// // Neil's puzzles
+	// myPuzzle.Define(&grids.Matrix2d{
+	// 	[]int{1, 1, 2, 3},
+	// 	[]int{4, 5, 10, 3},
+	// 	[]int{4, 5, 6, 6},
+	// 	[]int{8, 8, 7, 7},
+	// 	[]int{9, 0, 0, 7},
+	// })
+	// myPuzzle.AutoAlikePieces()
+	// myPuzzle.SetNotAlikePiece(1)
 
 	// // BUG------------------------------------------Toulouzas's puzzles
 	// myPuzzle.Define(&grids.Matrix2d{
@@ -90,9 +124,10 @@ func doingTests() {
 
 		// Max number of states to be processed. If 0, then ignored.
 		// Can be combined with MAX_DEPTH: if either of these two values is exceeded, the algorithm stops.
-		MAX_STATES = 99999
+		//MAX_STATES = 4999999
+		MAX_STATES = 1999999
 
-		// (Experimental) Used internally to force the algorithm to revisit some states
+		// (Experimental),Used internally to force the algorithm to revisit some states
 		// Actually, disabling it makes Pennant to be solved with non-optimal path.
 		HARD_OPTIMAL = true
 
@@ -112,50 +147,94 @@ func doingTests() {
 	sbpFinder.SetHardOptimal(HARD_OPTIMAL)
 
 	// // BrokenPennant
-	// sbpFinder.Detect(&grids.Matrix2d{
-	// 	[]int{0, 0, 0, 0},
-	// 	[]int{0, 0, 0, 0},
-	// 	[]int{0, 0, 0, 0},
-	// 	[]int{1, 2, 0, 0},
-	// 	[]int{3, 4, 0, 0},
-	// })
-
-	// Neil's puzzles
 	sbpFinder.Detect(&grids.Matrix2d{
 		[]int{0, 0, 0, 0},
 		[]int{0, 0, 0, 0},
 		[]int{0, 0, 0, 0},
-		[]int{0, 0, 0, 0},
-		[]int{0, 0, 1, 1},
+		[]int{0, 10, 10, 0},
+		[]int{0, 10, 10, 0},
 	})
 
-	// // Toulouzas's puzzles
-	// myPuzzle.Define(&grids.Matrix2d{
-	// 	[]int{0, 0, 0, 0, 0, 0},
-	// 	[]int{0, 0, 0, 0, 0, 0},
-	// 	[]int{11, 10, 8, 9, 7, 6},
-	// })
+	// sbpFinder.DebugPath([][]int{
 
-	// // Pennant
-	// sbpFinder.Detect(&grids.Matrix2d{
-	// 	[]int{0, 0, 0, 0},
-	// 	[]int{0, 0, 0, 0},
-	// 	[]int{0, 0, 0, 0},
-	// 	[]int{2, 2, 0, 0},
-	// 	[]int{2, 2, 0, 0},
-	// })
+	// 	[]int{9, -1, 0},
+	// 	[]int{2, -1, 0},
+	// 	[]int{7, -1, 0},
+	// 	[]int{5, 0, -1},
+	// 	[]int{8, 0, -1},
+	// 	[]int{6, 1, 0},
+	// 	[]int{10, 1, 0},
+	// 	[]int{1, 0, 1},
+	// 	[]int{9, 0, 1},
+	// 	[]int{2, -1, 0},
+	// 	[]int{3, 0, -1},
+	// 	[]int{10, 0, -1},
+	// 	[]int{6, -1, 0},
+	// 	[]int{8, 0, 1},
+	// 	[]int{5, 0, 1},
+	// 	[]int{7, 1, 0},
+	// 	[]int{4, 0, -1},
+	// 	[]int{10, 1, 0},
+	// 	[]int{3, 0, 1},
+	// 	[]int{2, 1, 0},
+	// 	[]int{9, 0, -1},
+	// 	[]int{1, 0, -1},
+	// 	[]int{6, -1, 0},
+	// 	[]int{6, -1, 0},
+	// 	[]int{10, 0, 1},
+	// 	[]int{3, 0, 1},
+	// 	[]int{4, 0, 1},
+	// 	[]int{7, -1, 0},
+	// 	[]int{5, 0, -1},
 
-	// //Ninja II
-	// sbpFinder.Detect(&grids.Matrix2d{
-	// 	[]int{0, 0, 0, 0, 0, 0, 0, 0},
-	// 	[]int{0, 0, 0, 0, 0, 0, 0, 0},
-	// 	[]int{0, 0, 0, 0, 0, 0, 0, 0},
-	// 	[]int{0, 0, 0, 0, 0, 0, 0, 0},
-	// 	[]int{0, 0, 0, 0, 0, 0, 0, 0},
-	// 	[]int{0, 0, 0, 0, 0, 0, 0, 0},
-	// 	[]int{0, 0, 0, 0, 1, 1, 1, 1},
-	// 	[]int{0, 0, 0, 0, 1, 1, 1, 1},
-	// 	[]int{0, 0, 0, 0, 1, 1, 1, 1},
+	// 	[]int{8, 0, -1},
+	// 	[]int{10, 1, 0},
+	// 	[]int{4, 0, 1},
+	// 	[]int{7, 0, 1},
+	// 	[]int{7, -1, 0},
+	// 	[]int{5, -1, 0},
+	// 	[]int{8, 0, -1},
+	// 	[]int{8, 0, -1},
+	// 	[]int{10, 0, -1},
+	// 	[]int{10, 0, -1},
+	// 	[]int{4, 1, 0},
+	// 	[]int{5, 0, 1},
+	// 	[]int{5, 0, 1},
+
+	// 	[]int{8, -1, 0},
+	// 	[]int{8, 0, 1},
+	// 	[]int{2, 1, 0},
+	// 	[]int{2, 1, 0},
+	// 	[]int{7, 0, -1},
+	// 	[]int{7, -1, 0},
+	// 	[]int{2, -1, 0},
+	// 	[]int{8, -1, 0},
+	// 	[]int{10, -1, 0},
+	// 	[]int{4, 0, -1},
+	// 	[]int{4, 0, -1},
+	// 	[]int{5, 1, 0},
+	// 	[]int{10, 0, 1},
+	// 	[]int{10, 0, 1},
+
+	// 	[]int{8, 1, 0},
+	// 	[]int{3, 0, -1},
+	// 	[]int{10, -1, 0},
+	// 	[]int{5, -1, 0},
+	// 	[]int{4, 0, 1},
+	// 	[]int{4, 0, 1},
+	// 	[]int{2, 1, 0},
+	// 	[]int{3, 0, -1},
+	// 	[]int{10, 0, -1},
+	// 	[]int{8, 1, 0},
+
+	// 	[]int{5, 0, -1},
+	// 	[]int{6, 1, 0},
+	// 	[]int{6, 1, 0},
+	// 	[]int{1, 0, 1},
+	// 	[]int{7, 0, 1},
+	// 	[]int{7, -1, 0},
+	// 	[]int{3, -1, 0},
+	// 	[]int{2, -1, 0},
 	// })
 
 	sbpFinder.SolvePuzzle(myPuzzle)

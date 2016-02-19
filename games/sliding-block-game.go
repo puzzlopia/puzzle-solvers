@@ -121,6 +121,10 @@ func (g *SBGame) State() (s defs.GameState) {
 	return g.state_.Clone()
 }
 
+// func (g *SBGame) PiecesById() map[int]*grids.GridPiece2 {
+// 	return g.piecesById
+// }
+
 // Return a list of valid movements that can be done from this state
 func (g *SBGame) ValidMovementsBFS(pieceTrajectory []defs.Command) []defs.Command {
 	return g.state_.ValidMovementsBFS(g.pieces, pieceTrajectory)
