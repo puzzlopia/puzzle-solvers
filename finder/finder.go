@@ -2,9 +2,7 @@ package finder
 
 import "github.com/edgarweto/puzzlopia/puzzle-solvers/definitions"
 
-//import "github.com/edgarweto/puzzlopia/puzzle-solvers/games"
-
-// Basic finder interface
+// Basic finder/solver interface
 type Finder interface {
 	SetLimits(maxDepth int, maxStates int)
 	SetDebug(bool)

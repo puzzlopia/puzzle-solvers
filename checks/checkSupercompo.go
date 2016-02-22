@@ -1,4 +1,4 @@
-package check
+package checks
 
 import "fmt"
 import "github.com/edgarweto/puzzlopia/puzzle-solvers/finder"

@@ -1,14 +1,17 @@
 package defs
 
-// A command represents a movement in a game. It can be a piece move, a number guess in sudoku, etc.
+// Command is a generic interface that represents a game movement. Puzzle games can be very different, so a command
+// could be a sliding block piece move, or a number guess in sudoku, etc.
 type Command interface {
 	PieceId() int
 	Inverted() interface{}
 	IsInverse(otherMov interface{}) bool
 	Print()
 }
+
 type SequenceMov []Command
 
+// Algorithm ad-hoc structure, a stack of commands (movements)
 type CmdStack struct {
 	stack_ []Command
 }
@@ -17,9 +20,12 @@ func (s *CmdStack) Path() []Command {
 	return s.stack_
 }
 
+// Adds a new movement to the top of the stack.
 func (s *CmdStack) Push(m Command) {
 	s.stack_ = append(s.stack_, m)
 }
+
+// Returns the top of the stack and removes it from stack.
 func (s *CmdStack) Pop() (Command, bool) {
 	l := len(s.stack_)
 	if l > 0 {
@@ -29,6 +35,8 @@ func (s *CmdStack) Pop() (Command, bool) {
 	}
 	return nil, false
 }
+
+// Returns last stack element (top). Does not modify the stack.
 func (s *CmdStack) Last() Command {
 	if len(s.stack_) > 0 {
 		return s.stack_[len(s.stack_)-1]
@@ -36,7 +44,7 @@ func (s *CmdStack) Last() Command {
 	return nil
 }
 
-// Returns number of movements.
+// Returns number of movements/commands using 'move metric': two consecutive movements on the same piece count as 1 movement.
 func (s *CmdStack) MovMetric() int {
 	movs := 0
 	lastPieceId := 0
@@ -56,6 +64,7 @@ func (s *CmdStack) Clone() []Command {
 	return c
 }
 
+// Detects all movements of last piece command. Then returns that path.
 func (s *CmdStack) LastPieceInvertedPath() []Command {
 	var path []Command
 
@@ -75,9 +84,9 @@ func (s *CmdStack) LastPieceInvertedPath() []Command {
 	}
 
 	return path
-
 }
 
+// Resets the stack
 func (s *CmdStack) Reset() {
 	s.stack_ = s.stack_[:0]
 }

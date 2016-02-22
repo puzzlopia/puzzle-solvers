@@ -230,10 +230,10 @@ func (s *SBPState) SetPrevState(prev defs.GameState, mov defs.Command) {
 	s.prevState_ = prev
 	s.prevMov_ = mov
 
-	// Used in BFS
-	if ss != nil {
-		ss.nextMovs_ = append(ss.nextMovs_, mov)
-	}
+	// // Used in BFS
+	// if ss != nil {
+	// 	ss.nextMovs_ = append(ss.nextMovs_, mov)
+	// }
 
 }
 
@@ -246,6 +246,8 @@ func (s *SBPState) UpdateFromPrevState() {
 	// And apply last mov
 	s.applyMov(s.prevMov_)
 }
+
+// Checks only from prev
 func (s *SBPState) CheckPathAndState() {
 	var tempState SBPState
 
@@ -271,30 +273,30 @@ func (s *SBPState) PrevMov() defs.Command {
 	return s.prevMov_
 }
 
-// Adds a state as a next state, and the corresponding mov
-func (s *SBPState) AddNextState(u defs.GameState, mov defs.Command) {
-	s.nextStates_ = append(s.nextStates_, u)
-	s.nextMovs_ = append(s.nextMovs_, mov)
-}
+// // Adds a state as a next state, and the corresponding mov
+// func (s *SBPState) AddNextState(u defs.GameState, mov defs.Command) {
+// 	s.nextStates_ = append(s.nextStates_, u)
+// 	s.nextMovs_ = append(s.nextMovs_, mov)
+// }
 
-//Returns true if, among next movements, there is a movement of the same piece as the argument's mov.
-func (s *SBPState) SamePieceMovedNext(mov defs.Command) bool {
-	pieceId := mov.PieceId()
-	for _, m := range s.nextMovs_ {
-		if m.PieceId() == pieceId && !m.IsInverse(mov) {
-			return true
-		}
-	}
-	return false
-}
+// //Returns true if, among next movements, there is a movement of the same piece as the argument's mov.
+// func (s *SBPState) SamePieceMovedNext(mov defs.Command) bool {
+// 	pieceId := mov.PieceId()
+// 	for _, m := range s.nextMovs_ {
+// 		if m.PieceId() == pieceId && !m.IsInverse(mov) {
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }
 
 func (s *SBPState) SetMovChain(movs []defs.Command, updateStateFromPath *defs.GameState) {
 	s.movChain_ = movs
 	s.updateChainLen()
 
-	// if updateStateFromPath != nil {
-	// 	s.updateFromStart(updateStateFromPath)
-	// }
+	if updateStateFromPath != nil {
+		s.UpdateFromStart(updateStateFromPath)
+	}
 }
 
 func (s *SBPState) updateChainLen() {
@@ -340,25 +342,30 @@ func (s *SBPState) CopyMovChainAndAdd(path []defs.Command, mov defs.Command, upd
 	s.movChain_ = append(s.movChain_, mov)
 	s.updateChainLen()
 
-	// if updateStateFromPath != nil {
-	// 	s.updateFromStart(updateStateFromPath)
-	// }
+	if updateStateFromPath != nil {
+		s.UpdateFromStart(updateStateFromPath)
+	}
 }
 
 // Removes the state and restarts: it starts with the original state and then applies the chain of movs.
-func (s *SBPState) updateFromStart(originState *defs.GameState) {
+func (s *SBPState) UpdateFromStart(originState *defs.GameState) {
 
-	fmt.Println("\t**** UpdateFromStart ****")
+	//fmt.Println("\t**** UpdateFromStart ****")
 
 	o := (*originState).(*SBPState)
 	s.grid.Copy(&o.grid)
 
-	fmt.Println("Origin grid:", s.grid)
-
+	// fmt.Println("Origin grid:", s.grid)
+	// fmt.Println("Path: [")
 	for _, mov := range s.movChain_ {
 
+		// if idx > 0 {
+		// 	fmt.Printf(",")
+		// }
+		// mov.Print()
 		s.applyMov(mov)
 	}
+	//	fmt.Println("]")
 }
 
 // Builds a set of pieces from current state
@@ -508,6 +515,8 @@ func (s *SBPState) ValidMovement(mov defs.Command) bool {
 // It indicates that the 'other' path is shorter (the length is checked when adding the equivalency)
 func (s *SBPState) ApplyEquivalencyContinuity(a defs.GameState, mov defs.Command, origin defs.GameState) bool {
 
+	//fmt.Println("[ApplyEquivalencyContinuity]")
+
 	// If two states are equivalent, that doesn't means all pieces are equally positionated. It only means that
 	// all alike pieces are at the same position. Here we are going to update the path to a concrete state with
 	// the path of an equivalence state. Then, we may end up with an inconsistency between alike pieces, since that
@@ -516,23 +525,36 @@ func (s *SBPState) ApplyEquivalencyContinuity(a defs.GameState, mov defs.Command
 	updateStateFromPath := &origin
 
 	for _, x := range s.equivalencies_ {
+
+		//fmt.Printf("\n\t Equivalency update. MOV (%v), GRID: %v", x.mov_, x.state_.(*SBPState).grid)
+
 		m := x.mov_
 
 		// x.mov_ is going to be the previous movement to reach state a, so we should ensure that it can be undone on
 		// that state:
-		mInv := x.mov_.Inverted().(defs.Command)
+		//mInv := x.mov_.Inverted().(defs.Command)
 
-		if m.PieceId() == mov.PieceId() && !m.IsInverse(mov) && x.state_.ValidMovement(mov) && a.ValidMovement(mInv) {
-			//if m.PieceId() == mov.PieceId() && !m.IsInverse(mov) && x.state_.ValidMovement(mov) {
+		//if m.PieceId() == mov.PieceId() && !m.IsInverse(mov) && x.state_.ValidMovement(mov) && a.ValidMovement(mInv) {
+		//if m.PieceId() == mov.PieceId() && x.state_.ValidMovement(mov) && a.ValidMovement(mInv) {
+		if m.PieceId() == mov.PieceId() && !m.IsInverse(mov) && x.state_.ValidMovement(mov) {
+
+			// DO NOT MODIFY S, the prev state:
 			//s is the prev state of a.
-			s.SetMovChain(x.path_, updateStateFromPath)
+			//s.SetMovChain(x.path_, updateStateFromPath)
 
 			//a state has that path plus mov.
 			a.CopyMovChainAndAdd(x.path_, mov, updateStateFromPath)
 
 			// REPARENT:
-			a.SetPrevState(x.state_, x.mov_)
-			a.UpdateFromPrevState() // Now we should update a's grid state!! Because its new parent may have alike pieces switched!!!
+			//a.SetPrevState(x.state_, x.mov_)
+			a.SetPrevState(x.state_, mov)
+
+			// a should have a correct state because we've updated it from the origin!
+			//a.CheckPathAndState()
+
+			//a.UpdateFromStart(updateStateFromPath)
+
+			//a.UpdateFromPrevState() // Now we should update a's grid state!! Because its new parent may have alike pieces switched!!!
 			//a.CheckPathAndState()
 
 			return true

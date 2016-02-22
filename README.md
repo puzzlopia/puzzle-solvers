@@ -20,13 +20,13 @@ I've selected Go language because it is similar to C++, equally powerful, and it
 The first solver implemented only works for SBPs. 
 There is no restriction on the shape of pieces (yes, this is important for future puzzles).
 
-As you can see if you run the code ('pennant_test' or 'solving-pennant'), the algorithm solves [Pennant](http://www.puzzlopia.com/puzzles/pennant/play) optimally (59 movs, less than a second on my laptop). I think it still requires adjustments in order to solve optimally any SBPs using the 'move metric'. Remember:
+As you can see if you run the code ('pennant_test'), the algorithm solves [Pennant](http://www.puzzlopia.com/puzzles/pennant/play) optimally (59 movs, less than a second on my laptop). It still requires adjustments in order to solve optimally any SBPs using the 'move metric'. Remember:
 - 'Move metric': if you move around using only one piece (or block), it counts as one movement.
 - 'Step metric': any movement of one position counts as one movement.
 
 It is easy to implement an algorithm that finds solutions or optimal solutions using 'step metric'. [BFS](https://en.wikipedia.org/wiki/Depth-first_search) does pretty well. But everything changes when you use 'move metric', which seems to be the standard between SBPs experts. This is what current algorithm tries to do.
 
-Currently, *the algorithm doesn't always find the optimal* (see 'checks' folder). Also it would be nice to add a _prune_ optimization.
+Currently, **the algorithm doesn't always find the optimal** (see 'checks' folder). Also it would be nice to add a _prune_ optimization.
 
 ## Using the solver
 You only need to edit the 'main.go' file, uncomment 'solvingPennant()' and comment everything else. 

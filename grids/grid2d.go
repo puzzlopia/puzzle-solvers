@@ -291,7 +291,7 @@ func (g *Matrix2d) ApplyRawTranslation(pieceId int, mov GridMov2) {
 		newCol := c + dCol
 
 		if newRow < 0 || newRow >= rows || newCol < 0 || newCol >= cols {
-			fmt.Printf("\n\n		*ERROR::ApplyRawTranslation Cannot move piece %d to OUTSIDE cell (%d,%d)\n", pieceId, newRow, newCol)
+			fmt.Printf("\n\n		*ERROR::ApplyRawTranslation Cannot move (%v) piece %d to OUTSIDE cell (%d,%d)\n", mov, pieceId, newRow, newCol)
 			panic("[grids::ApplyRawTranslation] invalid movement!")
 		}
 
@@ -299,7 +299,7 @@ func (g *Matrix2d) ApplyRawTranslation(pieceId int, mov GridMov2) {
 		y := g.At(newRow, newCol)
 
 		if y != 0 {
-			fmt.Printf("\n\n		*ERROR::ApplyRawTranslation Cannot move piece %d to cell (%d,%d) occupied by %d\n", pieceId, newRow, newCol, y)
+			fmt.Printf("\n\n		*ERROR::ApplyRawTranslation Cannot move (%v) piece %d to cell (%d,%d) occupied by %d\n", mov, pieceId, newRow, newCol, y)
 			panic("[grids::ApplyRawTranslation] invalid movement!")
 		}
 

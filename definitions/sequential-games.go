@@ -23,22 +23,18 @@ type GameState interface {
 	// Generates an integer based on the state. Useful to insert in hashes.
 	ToHash() int
 
+	// These functions have been being added while developing the BFS algorithm
+	// Should refactor.
 	SetMovChain([]Command, *GameState)
-
 	CollapsedPathLen() int
 	RealPathLen() int
 	CopyMovChainFrom(GameState)
-	//PropagateUpdate()
-	AddNextState(GameState, Command)
 	SetPrevState(GameState, Command)
 	UpdateFromPrevState()
 	CheckPathAndState()
 	PrevState() GameState
 	PrevMov() Command
-	SamePieceMovedNext(Command) bool
-
-	TinyPrint()
-	TinyGoPrint()
+	UpdateFromStart(originState *GameState)
 
 	CopyMovChainAndAdd([]Command, Command, *GameState)
 
@@ -58,6 +54,9 @@ type GameState interface {
 	AddEquivPath(GameState, []Command, Command)
 	ValidMovement(m Command) bool
 	ApplyEquivalencyContinuity(GameState, Command, GameState) bool
+
+	TinyPrint()
+	TinyGoPrint()
 }
 
 // A slice of game states

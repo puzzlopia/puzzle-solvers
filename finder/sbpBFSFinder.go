@@ -350,9 +350,9 @@ func (f *SbpBfsFinder) processState(s defs.GameState, reversePath []defs.Command
 						st.AddEquivPath(s, chain, mov) //And s is not processed by now...
 						//}
 					} else {
-						if st.SamePieceMovedNext(mov) {
-							f.addToFrontier(s)
-						}
+						// if st.SamePieceMovedNext(mov) {
+						// 	f.addToFrontier(s)
+						// }
 					}
 				}
 				return
@@ -504,19 +504,6 @@ func (f *SbpBfsFinder) resumeExtremals() {
 		f.extremals_[0].TinyGoPrint()
 	}
 
-	// if f.search_ != nil {
-	// 	f.fmtHeaders_.Println("\n\n[SOLUTION]\n")
-
-	// 	search := color.New(color.FgYellow, color.Bold)
-
-	// 	if f.foundState_ != nil {
-	// 		search.Println("Found! Path len: ", (*f.foundState_).CollapsedPathLen())
-
-	// 		(*f.foundState_).TinyPrint()
-	// 	} else {
-	// 		search.Println("Not found.")
-	// 	}
-	// }
 	fmt.Println("\n\n")
 }
 

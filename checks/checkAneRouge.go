@@ -1,4 +1,4 @@
-package check
+package checks
 
 import "fmt"
 import "github.com/edgarweto/puzzlopia/puzzle-solvers/finder"
@@ -36,7 +36,7 @@ func CheckAneRouge() {
 		// Max number of states to be processed. If 0, then ignored.
 		// Can be combined with MAX_DEPTH: if either of these two values is exceeded, the algorithm stops.
 		//MAX_STATES = 4999999
-		MAX_STATES = 1999999
+		MAX_STATES = 99999
 
 		// (Experimental),Used internally to force the algorithm to revisit some states
 		// Actually, disabling it makes Pennant to be solved with non-optimal path.
