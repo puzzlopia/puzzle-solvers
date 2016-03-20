@@ -65,3 +65,35 @@ func (s *RangeStatistic) ResumeRange(out *color.Color) {
 func (s *RangeStatistic) ResumeRangeAv(out *color.Color) {
 	out.Printf("\n %s: min=%d, max=%d av=%f", s.name_, s.min_, s.max_, float64(s.total_)/float64(s.count_))
 }
+
+// Histogram statistic:
+type RangeHistogram struct {
+	total_ int
+	name_  string
+	data_  map[int]int
+}
+
+func (s *RangeHistogram) Set(n string) {
+	s.name_ = n
+
+	s.data_ = make(map[int]int)
+}
+
+func (s *RangeHistogram) Add(x int, c int) {
+	s.total_ += c
+	s.data_[x] += c
+}
+
+func (s *RangeHistogram) ResumeHistogram(out *color.Color) {
+	out.Printf("\n %s:", s.name_)
+
+	sortedHisto := make([]int, len(s.data_))
+
+	for key, val := range s.data_ {
+		sortedHisto[key-1] = val
+	}
+
+	for k, v := range sortedHisto {
+		out.Printf("\n [%d]: %d", k, v)
+	}
+}

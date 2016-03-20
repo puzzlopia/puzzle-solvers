@@ -33,14 +33,14 @@ func (g *SBGame) Define(m *grids.Matrix2d) (err error) {
 }
 
 // Implements GameDef interface
-func (g *SBGame) SetState(s defs.GameState) (err error) {
+func (g *SBGame) SetState(s defs.SeqGameState) (err error) {
 	b, ok := s.(*SBPState)
 	if ok {
 		g.state_.CopyGrid(*b)
 		g.state_.UpdatePiecePositions(g.piecesById)
 		g.state_.SetPrevState(s.PrevState(), s.PrevMov())
 	} else {
-		panic("[SBGame::SetState] defs.GameState not of type SBPState!")
+		panic("[SBGame::SetState] defs.SeqGameState not of type SBPState!")
 	}
 
 	return nil
@@ -117,7 +117,7 @@ func (g *SBGame) UndoMove(mov defs.Command) (err error) {
 }
 
 // Return a copy of the state
-func (g *SBGame) State() (s defs.GameState) {
+func (g *SBGame) State() (s defs.SeqGameState) {
 	return g.state_.Clone()
 }
 

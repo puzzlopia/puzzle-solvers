@@ -20,16 +20,16 @@ type SBPState struct {
 	waiting_       bool
 	depth_         int
 	equivalencies_ []struct {
-		state_ defs.GameState
+		state_ defs.SeqGameState
 		path_  []defs.Command
 		mov_   defs.Command
 	}
 	markedDebug_ bool
 
 	// Graph structure
-	prevState_  defs.GameState
+	prevState_  defs.SeqGameState
 	prevMov_    defs.Command
-	nextStates_ []defs.GameState
+	nextStates_ []defs.SeqGameState
 	nextMovs_   []defs.Command
 }
 
@@ -116,14 +116,14 @@ func (g *SBPState) TinyGoPrint() {
 }
 
 /**
- * Implement defs.GameState interface
+ * Implement defs.SeqGameState interface
  */
 func (g *SBPState) Uid() int {
 	return g.uid_
 }
 
-// Create a new defs.GameState, cloned from current
-func (g *SBPState) Clone() defs.GameState {
+// Create a new defs.SeqGameState, cloned from current
+func (g *SBPState) Clone() defs.SeqGameState {
 	var c SBPState
 
 	staticSBPStateCount_++
@@ -134,7 +134,7 @@ func (g *SBPState) Clone() defs.GameState {
 }
 
 //
-func (g *SBPState) Equal(c defs.GameState) bool {
+func (g *SBPState) Equal(c defs.SeqGameState) bool {
 	if g.pieceToValue_ == nil {
 		g.pieceToValue_ = defs.GetPieceToValueMap()
 	}
@@ -158,7 +158,7 @@ func (g *SBPState) Equal(c defs.GameState) bool {
 	return true
 }
 
-func (g *SBPState) EqualSub(c defs.GameState) bool {
+func (g *SBPState) EqualSub(c defs.SeqGameState) bool {
 	if g.pieceToValue_ == nil {
 		g.pieceToValue_ = defs.GetPieceToValueMap()
 	}
@@ -212,12 +212,12 @@ func (g *SBPState) ToHash() int {
 	return hash
 }
 
-func (s *SBPState) PrevState() defs.GameState {
+func (s *SBPState) PrevState() defs.SeqGameState {
 	return s.prevState_
 }
 
 // Sets prev status and the mov that brought to this state
-func (s *SBPState) SetPrevState(prev defs.GameState, mov defs.Command) {
+func (s *SBPState) SetPrevState(prev defs.SeqGameState, mov defs.Command) {
 	var ss *SBPState = nil
 
 	if prev == nil {
@@ -274,7 +274,7 @@ func (s *SBPState) PrevMov() defs.Command {
 }
 
 // // Adds a state as a next state, and the corresponding mov
-// func (s *SBPState) AddNextState(u defs.GameState, mov defs.Command) {
+// func (s *SBPState) AddNextState(u defs.SeqGameState, mov defs.Command) {
 // 	s.nextStates_ = append(s.nextStates_, u)
 // 	s.nextMovs_ = append(s.nextMovs_, mov)
 // }
@@ -290,7 +290,7 @@ func (s *SBPState) PrevMov() defs.Command {
 // 	return false
 // }
 
-func (s *SBPState) SetMovChain(movs []defs.Command, updateStateFromPath *defs.GameState) {
+func (s *SBPState) SetMovChain(movs []defs.Command, updateStateFromPath *defs.SeqGameState) {
 	s.movChain_ = movs
 	s.updateChainLen()
 
@@ -326,7 +326,7 @@ func (s *SBPState) RealPathLen() int {
 	return len(s.movChain_)
 }
 
-func (s *SBPState) CopyMovChainFrom(gs defs.GameState) {
+func (s *SBPState) CopyMovChainFrom(gs defs.SeqGameState) {
 	from, ok := gs.(*SBPState)
 	if ok {
 		s.movChain_ = make([]defs.Command, len(from.movChain_))
@@ -336,7 +336,7 @@ func (s *SBPState) CopyMovChainFrom(gs defs.GameState) {
 }
 
 // Sets a new path to the state, adding a final step, and updates its real length
-func (s *SBPState) CopyMovChainAndAdd(path []defs.Command, mov defs.Command, updateStateFromPath *defs.GameState) {
+func (s *SBPState) CopyMovChainAndAdd(path []defs.Command, mov defs.Command, updateStateFromPath *defs.SeqGameState) {
 	s.movChain_ = make([]defs.Command, len(path))
 	copy(s.movChain_, path)
 	s.movChain_ = append(s.movChain_, mov)
@@ -348,7 +348,7 @@ func (s *SBPState) CopyMovChainAndAdd(path []defs.Command, mov defs.Command, upd
 }
 
 // Removes the state and restarts: it starts with the original state and then applies the chain of movs.
-func (s *SBPState) UpdateFromStart(originState *defs.GameState) {
+func (s *SBPState) UpdateFromStart(originState *defs.SeqGameState) {
 
 	//fmt.Println("\t**** UpdateFromStart ****")
 
@@ -486,7 +486,7 @@ func (s *SBPState) Waiting() bool {
 	return s.waiting_
 }
 
-func (s *SBPState) AddEquivPath(a defs.GameState, path []defs.Command, m defs.Command) {
+func (s *SBPState) AddEquivPath(a defs.SeqGameState, path []defs.Command, m defs.Command) {
 
 	// Duplicate path
 	p := make([]defs.Command, len(path))
@@ -495,7 +495,7 @@ func (s *SBPState) AddEquivPath(a defs.GameState, path []defs.Command, m defs.Co
 	// Add to equivalences
 	s.equivalencies_ = append(s.equivalencies_,
 		struct {
-			state_ defs.GameState
+			state_ defs.SeqGameState
 			path_  []defs.Command
 			mov_   defs.Command
 		}{a, p, m})
@@ -513,7 +513,7 @@ func (s *SBPState) ValidMovement(mov defs.Command) bool {
 
 // Returns true if current movement is on the same piece as an equivalent position of this state.
 // It indicates that the 'other' path is shorter (the length is checked when adding the equivalency)
-func (s *SBPState) ApplyEquivalencyContinuity(a defs.GameState, mov defs.Command, origin defs.GameState) bool {
+func (s *SBPState) ApplyEquivalencyContinuity(a defs.SeqGameState, mov defs.Command, origin defs.SeqGameState) bool {
 
 	//fmt.Println("[ApplyEquivalencyContinuity]")
 

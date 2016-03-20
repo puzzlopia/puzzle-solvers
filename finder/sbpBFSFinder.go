@@ -21,14 +21,14 @@ type SbpBfsFinder struct {
 
 	// Game settings
 	game_      defs.Playable
-	initState_ defs.GameState
+	initState_ defs.SeqGameState
 
 	// If we are searching for a concrete state
 	search_     *games.SBPState
-	foundState_ *defs.GameState
+	foundState_ *defs.SeqGameState
 
 	// If we are searching for a concrete state
-	extremals_     []defs.GameState
+	extremals_     []defs.SeqGameState
 	extremalDist_  int
 	findExtremals_ bool
 
@@ -38,9 +38,9 @@ type SbpBfsFinder struct {
 	frontierSize_ utils.RangeStatistic
 
 	// Algorithm state
-	visitedStates_ map[int][]defs.GameState
+	visitedStates_ map[int][]defs.SeqGameState
 	frontier_      utils.Queue
-	nextFrontier_  []defs.GameState
+	nextFrontier_  []defs.SeqGameState
 	endStatus_     string
 	duration_      time.Duration
 
@@ -143,7 +143,7 @@ func (f *SbpBfsFinder) SolvePuzzle(g defs.Playable) {
 	f.frontierSize_.Set("Frontier size")
 
 	f.game_ = g
-	f.visitedStates_ = make(map[int][]defs.GameState)
+	f.visitedStates_ = make(map[int][]defs.SeqGameState)
 	f.initState_ = f.game_.State()
 
 	h := f.initState_.ToHash()
@@ -261,7 +261,7 @@ func (f *SbpBfsFinder) exploreTree() {
 
 // Checks whether the state is new or have been previously processed.
 // If it isn't new, then compares the path length and decides if it is worth re-visiting it.
-func (f *SbpBfsFinder) processState(s defs.GameState, reversePath []defs.Command, mov defs.Command) {
+func (f *SbpBfsFinder) processState(s defs.SeqGameState, reversePath []defs.Command, mov defs.Command) {
 	if f.debugTemp_ {
 		s.MarkToDebug()
 	}
@@ -377,7 +377,7 @@ func (f *SbpBfsFinder) processState(s defs.GameState, reversePath []defs.Command
 }
 
 // Push back to the priority queue that state.
-func (f *SbpBfsFinder) addToFrontier(s defs.GameState) {
+func (f *SbpBfsFinder) addToFrontier(s defs.SeqGameState) {
 	if f.debug_ {
 		f.outDbg2_.Printf("\n	  Add to frontier: state [%d], from move %v", s.Uid(), s.PrevMov())
 	}
@@ -387,7 +387,7 @@ func (f *SbpBfsFinder) addToFrontier(s defs.GameState) {
 }
 
 // Pop from start of queue (highest priority)
-func (f *SbpBfsFinder) popFrontier() defs.GameState {
+func (f *SbpBfsFinder) popFrontier() defs.SeqGameState {
 
 	x := f.frontier_.PopFront()
 	if x != nil {
@@ -407,7 +407,7 @@ func (f *SbpBfsFinder) popFrontier() defs.GameState {
 
 // Called every time we found the objective state (solution of puzzle). We check whether the new
 // solution is better or not.
-func (f *SbpBfsFinder) updateObjective(s defs.GameState) {
+func (f *SbpBfsFinder) updateObjective(s defs.SeqGameState) {
 
 	s.MarkAsObjective()
 
@@ -462,7 +462,7 @@ func (f *SbpBfsFinder) FindExtremals(g defs.Playable) {
 	f.frontierSize_.Set("Frontier size")
 
 	f.game_ = g
-	f.visitedStates_ = make(map[int][]defs.GameState)
+	f.visitedStates_ = make(map[int][]defs.SeqGameState)
 	f.initState_ = f.game_.State()
 
 	h := f.initState_.ToHash()
@@ -508,7 +508,7 @@ func (f *SbpBfsFinder) resumeExtremals() {
 }
 
 // We are interested in extremal states, those at larger distance from the start state.
-func (f *SbpBfsFinder) addExtremalState(s defs.GameState) {
+func (f *SbpBfsFinder) addExtremalState(s defs.SeqGameState) {
 
 	if s.Depth() > f.extremalDist_ {
 

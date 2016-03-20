@@ -1,20 +1,20 @@
 package defs
 
 // Generic game state. Used as node in algorithm searchs
-type GameState interface {
+type SeqGameState interface {
 
 	//Unique identifier of the state instance
 	Uid() int
 
 	// Creates a copy of the state
-	Clone() GameState
+	Clone() SeqGameState
 
 	// Compares two states, returns true if they are equal
-	Equal(s GameState) bool
+	Equal(s SeqGameState) bool
 
 	// Compares two states, returns true if the param state is a substate. B is substate of A if all pieces in B are
 	// placed at the same position of corresponding pieces in A, for example. It will depend of puzzle kind.
-	EqualSub(s GameState) bool
+	EqualSub(s SeqGameState) bool
 
 	// Flags this state as equivalent to objective
 	MarkAsObjective()
@@ -25,18 +25,18 @@ type GameState interface {
 
 	// These functions have been being added while developing the BFS algorithm
 	// Should refactor.
-	SetMovChain([]Command, *GameState)
+	SetMovChain([]Command, *SeqGameState)
 	CollapsedPathLen() int
 	RealPathLen() int
-	CopyMovChainFrom(GameState)
-	SetPrevState(GameState, Command)
+	CopyMovChainFrom(SeqGameState)
+	SetPrevState(SeqGameState, Command)
 	UpdateFromPrevState()
 	CheckPathAndState()
-	PrevState() GameState
+	PrevState() SeqGameState
 	PrevMov() Command
-	UpdateFromStart(originState *GameState)
+	UpdateFromStart(originState *SeqGameState)
 
-	CopyMovChainAndAdd([]Command, Command, *GameState)
+	CopyMovChainAndAdd([]Command, Command, *SeqGameState)
 
 	PathChain() []Command
 	BuildPathReversed(path *[]Command)
@@ -51,22 +51,22 @@ type GameState interface {
 
 	// Adds an equivalent node-path. Finally if this node is part of a solution, we can check all the descendant paths to origin
 	// and select the shortest.
-	AddEquivPath(GameState, []Command, Command)
+	AddEquivPath(SeqGameState, []Command, Command)
 	ValidMovement(m Command) bool
-	ApplyEquivalencyContinuity(GameState, Command, GameState) bool
+	ApplyEquivalencyContinuity(SeqGameState, Command, SeqGameState) bool
 
 	TinyPrint()
 	TinyGoPrint()
 }
 
 // A slice of game states
-type GameStates []GameState
+type SeqGameStates []SeqGameState
 
 // Basic game interface for building it
 type GameDef interface {
 
 	// Lets us to define the structure of the game
-	Define(matrix GameState) (err error)
+	Define(matrix SeqGameState) (err error)
 
 	// The game builds its internals
 	Build() (err error)
@@ -83,10 +83,10 @@ type Playable interface {
 
 	// Makes the playable game to put its internal parts to
 	// reflect this state.
-	SetState(GameState) (err error)
+	SetState(SeqGameState) (err error)
 
 	// Returns a copy of current state
-	State() (s GameState)
+	State() (s SeqGameState)
 
 	//PiecesById() map[int]*grids.GridPiece2
 

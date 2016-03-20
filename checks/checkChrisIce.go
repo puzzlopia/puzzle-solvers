@@ -5,10 +5,10 @@ import "github.com/edgarweto/puzzlopia/puzzle-solvers/finder"
 import "github.com/edgarweto/puzzlopia/puzzle-solvers/games"
 import "github.com/edgarweto/puzzlopia/puzzle-solvers/grids"
 
-// Result:
-// Should be:
+// Result: 89
+// Should be: 89
 // Currently finds a solution of 67 moves, but all pages refer to optimal solution of 200. May the puzzle config be wrong? Or it is the puzzle objective?
-func CheckIce() {
+func CheckChrisIce() {
 
 	// Define the game
 	var myPuzzle = &games.SBGame{}
@@ -71,9 +71,9 @@ func CheckIce() {
 	found, solutionLen, _ := sbpFinder.GetResult()
 
 	if !found {
-		fmt.Println("Ice not solved!")
+		fmt.Println("Chris-Ice not solved!")
 	}
 	if solutionLen != 89 {
-		fmt.Printf("Ice solution not optimal: found len = %d\n\n", solutionLen)
+		fmt.Printf("Chris-Ice solution not optimal: found len = %d\n\n", solutionLen)
 	}
 }
