@@ -34,6 +34,18 @@ func (c *EngelCommand) IsInverse(m interface{}) bool {
 	return false
 }
 
+func (c *EngelCommand) Equals(m interface{}) bool {
+	mov, ok := m.(*EngelCommand)
+	if ok {
+		if c.wheelId_ == mov.wheelId_ && (c.rotation_%6 == mov.rotation_%6) {
+			return true
+		}
+	} else {
+		panic("[EngelCommand::Equals] arg is not an EngelCommand")
+	}
+	return false
+}
+
 func (c *EngelCommand) Print() {
 	wheelName := 'L'
 	if c.wheelId_ == 1 {

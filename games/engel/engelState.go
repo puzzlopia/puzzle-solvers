@@ -62,6 +62,9 @@ type EngelState struct {
 	uid_     int
 	depth_   int
 	prevMov_ defs.Command
+	//prevMovs_ []defs.Command
+	prevMovWheels_ [2]bool
+	isInitial_     bool
 
 	// Structure state
 	wheelLeft_  EngelWheel
@@ -71,10 +74,17 @@ type EngelState struct {
 	pieceToValue_ *defs.PieceToValue
 }
 
+func (s *EngelState) SetInitial() {
+	s.isInitial_ = true
+}
+func (s *EngelState) Initial() bool {
+	return s.isInitial_
+}
+
 func (s *EngelState) Init(leftIds [12]int, rightIds [12]int) {
 	s.wheelLeft_.SetPieces(leftIds)
 	s.wheelRight_.SetPieces(rightIds)
-
+	s.prevMovWheels_ = [2]bool{false, false}
 	s.depth_ = 0
 
 	// Assign the map
@@ -93,6 +103,7 @@ func (s *EngelState) Assign(e EngelState) {
 	s.pieceToValue_ = e.pieceToValue_
 	s.depth_ = e.depth_
 	s.prevMov_ = e.prevMov_
+	s.prevMovWheels_ = e.prevMovWheels_
 }
 
 // Interface for sequential game states:
@@ -110,6 +121,7 @@ func (s *EngelState) Clone() defs.GameState {
 	c.pieceToValue_ = s.pieceToValue_
 	c.depth_ = s.depth_ + 1
 	c.prevMov_ = s.prevMov_
+	c.prevMovWheels_ = s.prevMovWheels_
 
 	return &c
 }
@@ -149,6 +161,39 @@ func (s *EngelState) SetPrevMov(m defs.Command) {
 
 func (s *EngelState) PrevMov() defs.Command {
 	return s.prevMov_
+}
+
+func (s *EngelState) AddPrevMov(m defs.Command) {
+	mov := m.(*EngelCommand)
+
+	if mov.PieceId() == 0 {
+		s.prevMovWheels_[0] = true
+	} else {
+		s.prevMovWheels_[1] = true
+	}
+
+	// for _, mov := range s.prevMovs_ {
+	// 	if mov.Equals(m) {
+	// 		return
+	// 	}
+	// }
+	// s.prevMovs_ = append(s.prevMovs_, m)
+}
+
+// // Filters a command: returns true if the command would generate
+// // a visited state.
+// func (s *EngelState) IgnoreMovement(m EngelCommand) bool {
+// 	for _, mov := range s.prevMovs_ {
+// 		if mov.IsInverse(m) {
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }
+
+// Returns true if the state has been reached by moving left wheel by one path, and right wheel by other path.
+func (s *EngelState) CanIgnoreState() bool {
+	return s.prevMovWheels_[0] && s.prevMovWheels_[1]
 }
 
 func (s *EngelState) Move(mov *EngelCommand) {

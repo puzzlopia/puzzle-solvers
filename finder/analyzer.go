@@ -25,11 +25,13 @@ type Analyzer struct {
 	findExtremals_ bool
 
 	// Stats
-	countStates_  utils.ScalarStatistic
-	nodesDegree_  utils.ScalarStatistic
-	frontierSize_ utils.RangeStatistic
-	maxDepth_     utils.RangeStatistic
-	depthDistr_   utils.RangeHistogram
+	countStates_          utils.ScalarStatistic
+	nodesDegree_          utils.ScalarStatistic
+	frontierSize_         utils.RangeStatistic
+	maxDepth_             utils.RangeStatistic
+	depthDistr_           utils.RangeHistogram
+	revisitedStates_      utils.ScalarStatistic
+	revisitNotIgnorables_ utils.RangeHistogram
 
 	// Algorithm state
 	visitedStates_  map[int][]defs.GameState
@@ -73,6 +75,8 @@ func (f *Analyzer) init() {
 	f.frontierSize_.Set("Frontier size")
 	f.maxDepth_.Set("Max depth")
 	f.depthDistr_.Set("Depth states distribution")
+	f.revisitedStates_.Set("Revisited states")
+	f.revisitNotIgnorables_.Set("Revisited not ignorables")
 
 	f.initialized_ = true
 	f.nextDepth_ = 0
@@ -87,6 +91,8 @@ func (f *Analyzer) Resume() {
 
 	f.fmtHeaders_.Println("\n[STATS]")
 	f.countStates_.Resume(f.outDbg2_)
+	f.revisitedStates_.Resume(f.outDbg2_)
+	f.revisitNotIgnorables_.ResumeHistogramUnsort(f.outDbg2_)
 	f.nodesDegree_.ResumeAv(f.outDbg2_)
 	f.frontierSize_.ResumeRange(f.outDbg2_)
 	f.maxDepth_.ResumeRange(f.outDbg2_)
@@ -188,8 +194,11 @@ func (f *Analyzer) exploreTree() {
 
 			newState.SetPrevMov(mov)
 
-			f.processState(newState)
+			ignoreLoop := f.processState(newState)
 
+			if ignoreLoop {
+				break
+			}
 			f.game_.UndoMove(mov)
 		}
 
@@ -201,7 +210,7 @@ func (f *Analyzer) exploreTree() {
 	}
 }
 
-func (f *Analyzer) processState(s defs.GameState) {
+func (f *Analyzer) processState(s defs.GameState) bool {
 
 	h := s.ToHash()
 	if f.debug_ {
@@ -221,12 +230,32 @@ func (f *Analyzer) processState(s defs.GameState) {
 		// Compare with potential equivalent states
 		for _, st := range f.visitedStates_[h] {
 			if st.Equal(s) {
-				if s.Depth() < st.Depth() {
-					if f.debug_ {
-						f.outDbg1_.Printf("\n	 - Detected state with inferior depth!")
-					}
+				f.revisitedStates_.Incr()
+
+				st.AddPrevMov(s.PrevMov())
+
+				// // If we happen to revisit initial (root) state, then we should
+				// // see if we can ignore sibling states, because they have been all visited.
+				// if st.Initial() {
+				// 	return true
+				// }
+
+				// If we close a loop going back to 2 or more levels, then we can ignore all siblings
+				// because all of them will have been visited
+				if st.Depth()+2 <= s.Depth() {
+					return true //This never happens!
 				}
-				return
+
+				// We can ignore all siblings if the command for st is in the same wheel as the command in s,
+				// because all siblings will have already been generated:
+				if st.PrevMov() != nil && st.PrevMov().PieceId() == s.PrevMov().PieceId() {
+					return true
+				}
+
+				//fmt.Printf("\n - Hash hit: st.Depth = %d, s.Depth = %d", st.Depth(), s.Depth())
+				f.revisitNotIgnorables_.Add(s.Depth(), 1)
+
+				return false
 			}
 		}
 
@@ -237,6 +266,7 @@ func (f *Analyzer) processState(s defs.GameState) {
 		// Let's explore its childs later
 		f.addToFrontier(s)
 	}
+	return false
 }
 
 // Push back to the priority queue that state.

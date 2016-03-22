@@ -21,4 +21,10 @@ type GameState interface {
 	Depth() int
 	SetPrevMov(Command)
 	PrevMov() Command
+
+	// Sometimes we can optimize if we avoid re-visiting states
+	AddPrevMov(Command)
+
+	// Returns whether the state is the root state of all explorations
+	Initial() bool
 }

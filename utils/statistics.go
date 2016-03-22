@@ -89,11 +89,29 @@ func (s *RangeHistogram) ResumeHistogram(out *color.Color) {
 
 	sortedHisto := make([]int, len(s.data_))
 
+	minKey := 999999999
+	maxKey := 0
+	for key, _ := range s.data_ {
+		if key < minKey {
+			minKey = key
+		}
+		if key > maxKey {
+			maxKey = key
+		}
+	}
+
 	for key, val := range s.data_ {
-		sortedHisto[key-1] = val
+		sortedHisto[key-minKey] = val
 	}
 
 	for k, v := range sortedHisto {
+		out.Printf("\n [%d]: %d", k, v)
+	}
+}
+
+func (s *RangeHistogram) ResumeHistogramUnsort(out *color.Color) {
+	out.Printf("\n %s: %d", s.name_, s.total_)
+	for k, v := range s.data_ {
 		out.Printf("\n [%d]: %d", k, v)
 	}
 }

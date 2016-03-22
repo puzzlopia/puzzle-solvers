@@ -34,6 +34,11 @@ func (m *GridMov2) IsInverse(x interface{}) bool {
 	return false
 }
 
+// Not used by now!
+func (m *GridMov2) Equals(x interface{}) bool {
+	return false
+}
+
 func (m *GridMov2) Print() {
 	//fmt.Printf("[%d]~(%d, %d)", m.pieceId, m.dRow, m.dCol)
 

@@ -17,6 +17,7 @@ type EngelGame struct {
 // So odd positions are occupied by rectangle pieces, while even positions correspond to triangle pieces.
 func (g *EngelGame) Define(leftWheelPieces [12]int, rightWheelPieces [12]int) {
 	g.state_.Init(leftWheelPieces, rightWheelPieces)
+	g.state_.SetInitial()
 
 	g.pieces_ = leftWheelPieces[:]
 	g.pieces_ = append(g.pieces_, rightWheelPieces[:]...)
@@ -89,6 +90,10 @@ func (g *EngelGame) State() (s defs.GameState) {
 func (g *EngelGame) ValidMovements() []defs.Command {
 	var movs []defs.Command
 
+	// if g.state_.CanIgnoreState() {
+	// 	return nil
+	// }
+
 	prevMov := g.state_.PrevMov()
 	if prevMov != nil {
 		engelMov := prevMov.(*EngelCommand)
@@ -102,7 +107,24 @@ func (g *EngelGame) ValidMovements() []defs.Command {
 			&EngelCommand{altWheel, 4},
 			&EngelCommand{altWheel, 5},
 		}
+		// availableMovs := []*EngelCommand{
+		// 	&EngelCommand{0, 1},
+		// 	&EngelCommand{0, 2},
+		// 	&EngelCommand{0, 3},
+		// 	&EngelCommand{0, 4},
+		// 	&EngelCommand{0, 5},
+		// 	&EngelCommand{1, 1},
+		// 	&EngelCommand{1, 2},
+		// 	&EngelCommand{1, 3},
+		// 	&EngelCommand{1, 4},
+		// 	&EngelCommand{1, 5},
+		// }
 
+		// for _, mov := range availableMovs {
+		// 	if !g.state_.IgnoreMovement(*mov) {
+		// 		movs = append(movs, mov)
+		// 	}
+		// }
 	} else {
 		// Always we can perform wheel movements since they are never blocked.
 		movs = []defs.Command{

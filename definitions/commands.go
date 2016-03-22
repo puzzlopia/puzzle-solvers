@@ -7,6 +7,7 @@ type Command interface {
 	Inverted() interface{}
 	IsInverse(otherMov interface{}) bool
 	Print()
+	Equals(otherMov interface{}) bool
 }
 
 type SequenceMov []Command
