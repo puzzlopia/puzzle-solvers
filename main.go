@@ -1,7 +1,6 @@
 package main
 
 //import "github.com/edgarweto/puzzlopia/puzzle-solvers/checks"
-
 import "github.com/edgarweto/puzzlopia/puzzle-solvers/analysis"
 
 func main() {
@@ -24,6 +23,7 @@ func main() {
 	//checks.CheckChrisIris()
 	//checks.CheckChrisHeart()
 	//checks.CheckChrisEye()
+	//checks.CheckAdelaaR()
 
 	//solveInconnex()
 

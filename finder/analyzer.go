@@ -234,11 +234,11 @@ func (f *Analyzer) processState(s defs.GameState) bool {
 
 				st.AddPrevMov(s.PrevMov())
 
-				// // If we happen to revisit initial (root) state, then we should
-				// // see if we can ignore sibling states, because they have been all visited.
-				// if st.Initial() {
-				// 	return true
-				// }
+				// If we happen to revisit initial (root) state, then we should
+				// see if we can ignore sibling states, because they have been all visited.
+				if st.Initial() {
+					return true //Never happens!
+				}
 
 				// If we close a loop going back to 2 or more levels, then we can ignore all siblings
 				// because all of them will have been visited
