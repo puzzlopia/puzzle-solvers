@@ -1,7 +1,7 @@
 package main
 
-//import "github.com/edgarweto/puzzlopia/puzzle-solvers/checks"
-import "github.com/edgarweto/puzzlopia/puzzle-solvers/analysis"
+import "github.com/edgarweto/puzzlopia/puzzle-solvers/checks"
+//import "github.com/edgarweto/puzzlopia/puzzle-solvers/analysis"
 
 func main() {
 
@@ -24,10 +24,11 @@ func main() {
 	//checks.CheckChrisHeart()
 	//checks.CheckChrisEye()
 	//checks.CheckAdelaaR()
+	checks.CheckRedditQuest4hj6nb()
 
 	//solveInconnex()
 
-	analysis.AnalyzeEngelSunMoon()
+	//analysis.AnalyzeEngelSunMoon()
 	//analysis.AnalyzeEngelColorWheels()
 
 }
